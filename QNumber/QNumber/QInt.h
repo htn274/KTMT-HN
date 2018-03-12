@@ -2,8 +2,8 @@ class QInt {
 private:
 	int arr[4]; // 4 int = 16 byte
 public:
-	void ScanQInt(QInt &x);
-	void PrintQInt(QInt x);
+	void ScanQInt();
+	void PrintQInt();
 
 	bool * DecToBin(QInt x);
 	QInt BinToDec(bool *bit);
