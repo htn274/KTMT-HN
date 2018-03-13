@@ -21,5 +21,16 @@
     <ClInclude Include="Qfloat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BitMani.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="BitMani.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
