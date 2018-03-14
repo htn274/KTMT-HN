@@ -7,21 +7,21 @@ bool getBit(const int & x, int index)
 
 bool turnOnBit(int & x, int index)
 {
-	if (index > BIT_MAX || index < 0) return false;
+	if (index > NUM_OF_BIT|| index < 0) return false;
 	x = x | (1 << index);
 	return true;
 }
 
 bool turnOffBit(int & x, int index)
 {
-	if (index > BIT_MAX || index < 0) return false;
+	if (index > NUM_OF_BIT || index < 0) return false;
 	x = x & ~(1 << index);
 	return true;
 }
 
 bool toogleBit(int & x, int index)
 {
-	if (index > BIT_MAX || index < 0) return false;
+	if (index > NUM_OF_BIT || index < 0) return false;
 	x = x ^ (1 << index);
 	return true;
 }

@@ -1,10 +1,8 @@
 #include <iostream>
-
+#include "QNum.h"
 using namespace std;
 
-class QInt {
-private:
-	int arr[4]; // 4 int = 16 byte
+class QInt : public QNum{
 public:
 	void ScanQInt();
 	void PrintQInt();

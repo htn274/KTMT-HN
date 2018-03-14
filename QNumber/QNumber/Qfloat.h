@@ -1,6 +1,6 @@
-class Qfloat {
-private:
-	int arr[4];
+#include "QNum.h"
+
+class Qfloat : public QNum{
 public:
 	void ScanQfloat();
 	void PrintQfloat();

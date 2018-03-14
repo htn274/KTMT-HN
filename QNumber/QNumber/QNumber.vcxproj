@@ -80,10 +80,12 @@
     <ClInclude Include="BitMani.h" />
     <ClInclude Include="Qfloat.h" />
     <ClInclude Include="QInt.h" />
+    <ClInclude Include="QNum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BitMani.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="QNum.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

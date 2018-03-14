@@ -1,17 +1,16 @@
-#include "BitMani.h"
+#include "QNum.h"
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	int n;
-	cin >> n;
-	toogleBit(n, 1);
-	int i = 0;
-	while (i < 4) {
-		cout << getBit(n, i);
-		i++;
-	}
+	QNum x;
+	x.printTest();
+	x.setBitQNum(127, 1);
+	x.setBitQNum(0, 1);
+	x.setBitQNum(3, 1);
+	x.setBitQNum(0, 0);
+	x.printTest();
 	system("pause");
 	return 0;
 }
