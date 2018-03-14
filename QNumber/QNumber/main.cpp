@@ -1,16 +1,17 @@
-#include "QNum.h"
+#include "QInt.h"
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	QNum x;
+	QInt x(1);
 	x.printTest();
-	x.setBitQNum(127, 1);
-	x.setBitQNum(0, 1);
-	x.setBitQNum(3, 1);
-	x.setBitQNum(0, 0);
-	x.printTest();
-	system("pause");
+	
+	QInt y(2);
+	y.printTest();
+	
+	QInt z = x + y;
+	z.printTest();
+
 	return 0;
 }
