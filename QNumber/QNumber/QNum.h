@@ -5,11 +5,13 @@
 #define MAX_N		4
 
 class QNum {
-private: 
+protected: 
 	int arr[MAX_N]; // 4 * 4 = 16 bytes = 128 bits
 public:
 	QNum();
-	
+	//Khởi tạo tại arr[index] = data
+	void Init(int index, int data);
+	//In ra màn hình từng bit để test
 	void printTest();
 	//Lấy bit thứ index trong QNum
 	bool getBitQNum(int index);
