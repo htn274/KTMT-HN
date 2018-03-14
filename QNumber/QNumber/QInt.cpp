@@ -95,7 +95,7 @@ vector<bool> generateBinaryArrayFromDecString(string source) {
 	return result;
 }
 
-QInt decStringToBinary(string source) {
+QInt scanDecString(string source) {
 	QInt result;
 	vector<bool> binaryArray = generateBinaryArrayFromDecString(source);
 	for (int i = 0; i < binaryArray.size(); i++) {
@@ -105,8 +105,81 @@ QInt decStringToBinary(string source) {
 	return result;
 }
 
-void QInt::ScanQInt(string source, int destBase) {
-	if (destBase == 2) {
-		*this = decStringToBinary(source);
+QInt scanBinString(string source) {
+	QInt result;
+	int currentPosition = source.length() - 1;
+	while (currentPosition >= 0) {
+		if (source[currentPosition] == '1') 
+			result.setBitQNum(source.length() - 1 - currentPosition, true);
+		else 
+			result.setBitQNum(source.length() - 1 - currentPosition, false);
+		currentPosition--;
+	}
+	return result;
+}
+
+int convertHexCharacterToDecNumber(char hexChar) {
+	if (hexChar >= '0' && hexChar <= '9')
+		return hexChar - '0';
+	else if (hexChar >= 'a' && hexChar <= 'f')
+		return hexChar - 'a' + 10;
+	else
+		return hexChar - 'A' + 10;
+}
+
+string convertDecNumberToBinString(int decNum) {
+	string result = "";
+	char remainderChar;
+	int remainderNum = 0;
+
+	while (decNum != 0) {
+		remainderNum = decNum % 2;
+		remainderChar = remainderNum + '0';
+		decNum /= 2;
+		result = remainderChar + result;
+	}
+
+	return result;
+}
+
+string standardizeBinString(string source) {
+	if (source.length() == 4)
+		return source;
+	else {
+		string standadizedString = source;
+		while (standadizedString.length() < 4) {
+			standadizedString = "0" + standadizedString;
+		}
+
+		return standadizedString;
+	}
+}
+
+QInt scanHexString(string source) {
+	string resultBinString = "";
+	int currentPosition = source.length() -1;
+	
+	while (currentPosition >= 0) {
+		int decNumber = convertHexCharacterToDecNumber(source[currentPosition]);
+		string tempBinString = convertDecNumberToBinString(decNumber);
+		string standardizedSmallBinString = standardizeBinString(tempBinString);
+		resultBinString = standardizedSmallBinString + resultBinString;
+		currentPosition--;
+	}
+
+	QInt result = scanBinString(resultBinString);
+
+	return result;
+}
+
+void QInt::ScanQInt(string source, int sourceBase) {
+	if (sourceBase == 10) {
+		*this = scanDecString(source);
+	}
+	else if (sourceBase == 2) {
+		*this = scanBinString(source);
+	}
+	else if (sourceBase == 16) {
+		*this = scanHexString(source);
 	}
 }

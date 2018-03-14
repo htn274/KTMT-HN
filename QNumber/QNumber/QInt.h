@@ -31,4 +31,7 @@ public:
 string divideDecStringByTwo(string source);
 bool isFullZero(string source);
 vector<bool> generateBinaryArrayFromDecString(string source);
-QInt decStringToBinary(string source);
+QInt scanDecString(string source);
+int convertHexCharacterToDecNumber(char hexChar);
+string convertDecNumberToBinString(int decNum);
+string standardizeBinString(string source);
