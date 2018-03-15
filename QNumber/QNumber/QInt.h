@@ -6,19 +6,24 @@
 using namespace std;
 
 class QInt : public QNum{
+private:
+	void scanBin(string source);
+	void scanHex(string source);
+	void scanDec(string source);
 public:
-
-	
-
 	QInt();
 	QInt(unsigned int x);
-  void ScanQInt(string source, int base);
-	void PrintQInt();
+	void ScanQInt(string source, int base);
+	void PrintQInt(int base);
 
-	bool * DecToBin(QInt x);
-	QInt BinToDec(bool *bit);
-	char *BinToHex(bool *bit);
-	char *DecToHex(QInt x);
+	vector<bool> convertToBin();
+	string convertToHex();
+	string convertToDec();
+
+	//bool * DecToBin(QInt x);
+	//QInt BinToDec(bool *bit);
+	//char *BinToHex(bool *bit);
+	//char *DecToHex(QInt x);
 
 	friend istream& operator >> (istream is, QInt& a);
 	friend ostream& operator << (ostream os, const QInt& a);
@@ -37,10 +42,3 @@ public:
 	QInt& operator =(const QInt& a);
 };
 
-string divideDecStringByTwo(string source);
-bool isFullZero(string source);
-vector<bool> generateBinaryArrayFromDecString(string source);
-QInt scanDecString(string source);
-int convertHexCharacterToDecNumber(char hexChar);
-string convertDecNumberToBinString(int decNum);
-string standardizeBinString(string source);

@@ -132,29 +132,6 @@ vector<bool> generateBinaryArrayFromDecString(string source) {
 	return result;
 }
 
-QInt scanDecString(string source) {
-	QInt result;
-	vector<bool> binaryArray = generateBinaryArrayFromDecString(source);
-	for (int i = 0; i < binaryArray.size(); i++) {
-		result.setBitQNum(i, binaryArray[i]);
-	}
-
-	return result;
-}
-
-QInt scanBinString(string source) {
-	QInt result;
-	int currentPosition = source.length() - 1;
-	while (currentPosition >= 0) {
-		if (source[currentPosition] == '1') 
-			result.setBitQNum(source.length() - 1 - currentPosition, true);
-		else 
-			result.setBitQNum(source.length() - 1 - currentPosition, false);
-		currentPosition--;
-	}
-	return result;
-}
-
 int convertHexCharacterToDecNumber(char hexChar) {
 	if (hexChar >= '0' && hexChar <= '9')
 		return hexChar - '0';
@@ -192,7 +169,30 @@ string standardizeBinString(string source) {
 	}
 }
 
-QInt scanHexString(string source) {
+void QInt::scanDec(string source) {
+	QInt result;
+	vector<bool> binaryArray = generateBinaryArrayFromDecString(source);
+	for (int i = 0; i < binaryArray.size(); i++) {
+		result.setBitQNum(i, binaryArray[i]);
+	}
+
+	*this = result;
+}
+
+void QInt::scanBin(string source) {
+	QInt result;
+	int currentPosition = source.length() - 1;
+	while (currentPosition >= 0) {
+		if (source[currentPosition] == '1')
+			result.setBitQNum(source.length() - 1 - currentPosition, true);
+		else
+			result.setBitQNum(source.length() - 1 - currentPosition, false);
+		currentPosition--;
+	}
+	*this = result;
+}
+
+void QInt::scanHex(string source) {
 	string resultBinString = "";
 	int currentPosition = source.length() -1;
 	
@@ -204,20 +204,111 @@ QInt scanHexString(string source) {
 		currentPosition--;
 	}
 
-	QInt result = scanBinString(resultBinString);
-
-	return result;
+	this->scanBin(resultBinString);
 }
 
 void QInt::ScanQInt(string source, int sourceBase) {
 	if (sourceBase == 10) {
-		*this = scanDecString(source);
+		this->scanDec(source);
 	}
 	else if (sourceBase == 2) {
-		*this = scanBinString(source);
+		this->scanBin(source);
 	}
 	else if (sourceBase == 16) {
-		*this = scanHexString(source);
+		this->scanHex(source);
 	}
+}
+
+int getTheFirst1BitIndex(QInt x) {
+	int index = MAX_N * NUM_OF_BIT - 1;
+	
+	while (x.getBitQNum(index) == 0 && index != 0) {
+		index--;
+	}
+
+	return index;
+}
+
+vector<bool> QInt::convertToBin() {
+	vector<bool> result;
+	int index = getTheFirst1BitIndex(*this);
+	while (index >= 0) {
+		bool bit = this->getBitQNum(index);
+		result.push_back(bit);
+		index--;
+	}
+
+	return result;
+}
+
+char convertDecNumberToHexNumber(int decNum) {
+	if (decNum >= 0 && decNum <= 9)
+		return decNum + '0';
+	else
+		return decNum - 10 + 'A';
+}
+
+vector<bool> getTheFirst4BitsAtIndex(vector<bool> source, int &index) {
+	vector<bool> result;
+	for (int i = index; i < index + 4; i++) {
+		if (i >= source.size())
+			result.push_back(0);
+		else
+			result.push_back(source[i]);
+	}
+	index += 4;
+	return result;
+}
+
+int convertFrom4BitsToDec(vector<bool> source) {
+	int result = 0;
+	for (int i = 0; i < source.size(); i++)
+		result += source[i] * pow(2, i);
+
+	return result;
+}
+
+vector<bool> revertBinArray(vector<bool> source){
+	vector<bool> result;
+	for (int i = source.size() - 1; i >= 0; i--) {
+		result.push_back(source[i]);
+	}
+	return result;
+}
+
+string QInt::convertToHex() {
+	
+	vector<bool> wholeBitArray = this->convertToBin();
+	wholeBitArray = revertBinArray(wholeBitArray);
+	int currentIndex = 0;
+	string result = "";
+
+	while (currentIndex < wholeBitArray.size()) {
+		int decNum;
+		vector<bool> smallBitArray = getTheFirst4BitsAtIndex(wholeBitArray, currentIndex);
+		decNum = convertFrom4BitsToDec(smallBitArray);
+		char hexDigit = convertDecNumberToHexNumber(decNum);
+		result = hexDigit + result;
+	}
+
+	return result;
+}
+
+void printBin(QInt x) {
+	vector<bool> binString = x.convertToBin();
+	for (int i = 0; i < binString.size(); i++)
+		cout << binString[i];
+}
+
+void printHex(QInt x) {
+	string hexString = x.convertToHex();
+	cout << hexString;
+}
+
+void QInt::PrintQInt(int base) {
+	if (base == 2)
+		printBin(*this);
+	else if (base == 16)
+		printHex(*this);
 }
 
