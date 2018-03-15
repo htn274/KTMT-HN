@@ -6,6 +6,11 @@ QNum::QNum()
 		arr[i] = 0;
 }
 
+void QNum::Init(int index, int data)
+{
+	this->arr[index] = data;
+}
+
 void QNum::printTest()
 {
 	for (int i = 0; i < MAX_N * NUM_OF_BIT; i++) {
