@@ -14,7 +14,9 @@ public:
 	//In ra màn hình từng bit để test
 	void printTest();
 	//Lấy bit thứ index trong QNum
-	bool getBitQNum(int index);
-	//Gán bit thứ idex trong QNum có giá trị bit
+	bool getBitQNum(int index) const;
+	//Gán bit thứ index trong QNum có giá trị bit
 	bool setBitQNum(int index, bool bit);
+	//Đổi bit thứ index 1 sang 0 và ngược lại 
+	bool toogleBitQNum(int index);
 };
