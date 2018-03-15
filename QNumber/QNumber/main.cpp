@@ -1,17 +1,15 @@
 #include "QInt.h"
+
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	QInt x(1);
+
+	string temp = "1166B";
+	QInt x;
+	x.ScanQInt(temp, 16);
 	x.printTest();
-	
-	QInt y(2);
-	y.printTest();
-	
-	QInt z = x + y;
-	z.printTest();
 
 	return 0;
 }
