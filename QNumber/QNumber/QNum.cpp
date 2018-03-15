@@ -22,8 +22,10 @@ void QNum::printTest()
 <<<<<<< HEAD
 bool QNum::getBitQNum(int index) 
 =======
+bool QNum::getBitQNum(int index) const
 >>>>>>> 17885b0918540389e03e0a0b05d9b4046f3c25d0
 {
+	int i = MAX_N - 1;
 	while (index - NUM_OF_BIT >= 0) {
 		index -= NUM_OF_BIT;
 		i--;
@@ -35,6 +37,7 @@ bool QNum::getBitQNum(int index)
 bool QNum::setBitQNum(int index, bool bit) 
 {
 	if (index > NUM_OF_BIT * MAX_N || index < 0) return false;
+	int i = MAX_N - 1;
 	while (index - NUM_OF_BIT >= 0) {
 		index -= NUM_OF_BIT;
 		i--;
