@@ -118,7 +118,14 @@ bool getRemainder(string dividend) {
 	return lastDigit % 2;
 }
 
-vector<bool> generateBinaryArrayFromDecString(string source) {
+bool checkNegativeDecString(string source) {
+	if (source[0] == '-')
+		return true;
+	else
+		return false;
+}
+
+vector<bool> generateBinaryArrayFromPositiveDecString(string source) {
 	vector<bool> result;
 	string dividend = source;
 	bool remainder;
@@ -129,6 +136,17 @@ vector<bool> generateBinaryArrayFromDecString(string source) {
 		dividend = divideDecStringByTwo(dividend);
 	}
 
+	return result;
+}
+
+vector<bool> generateBinaryArrayFromRandomDecString(string source) {
+	vector<bool> result;
+	if (!checkNegativeDecString(source))
+		result = generateBinaryArrayFromPositiveDecString(source);
+	else {
+		string positiveString = source.substr(1);
+		result = generateBinaryArrayFromPositiveDecString(positiveString);
+	}
 	return result;
 }
 
@@ -171,9 +189,16 @@ string standardizeBinString(string source) {
 
 void QInt::scanDec(string source) {
 	QInt result;
-	vector<bool> binaryArray = generateBinaryArrayFromDecString(source);
+	vector<bool> binaryArray = generateBinaryArrayFromRandomDecString(source);
 	for (int i = 0; i < binaryArray.size(); i++) {
 		result.setBitQNum(i, binaryArray[i]);
+	}
+
+	if (checkNegativeDecString(source)) {
+		QInt temp(1);
+		for (int i = 0; i < NUM_OF_BIT * MAX_N; i++)
+			result.toogleBitQNum(i);
+		result = result + temp;
 	}
 
 	*this = result;
@@ -237,7 +262,7 @@ vector<bool> QInt::convertToBin() {
 		result.push_back(bit);
 		index--;
 	}
-
+	
 	return result;
 }
 

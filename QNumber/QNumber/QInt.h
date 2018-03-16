@@ -41,4 +41,3 @@ public:
 
 	QInt& operator =(const QInt& a);
 };
-

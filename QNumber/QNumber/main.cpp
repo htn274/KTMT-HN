@@ -5,13 +5,10 @@ using namespace std;
 
 int main() {
 
-	string temp = "24315";
-	QInt x;
-	x.ScanQInt(temp, 10);
-	x.printTest();
-	x.PrintQInt(2);
-	cout << endl;
-	x.PrintQInt(16);
-	cout << endl;
+	string x = "-12";
+	QInt a;
+	a.ScanQInt(x, 10);
+	a.PrintQInt(16);
+
 	return 0;
 }
