@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
-
 #include "QNum.h"
 using namespace std;
 
@@ -13,6 +12,7 @@ private:
 public:
 	QInt();
 	QInt(unsigned int x);
+	QInt(vector<bool> x);
 	void ScanQInt(string source, int base);
 	void PrintQInt(int base);
 
@@ -45,4 +45,8 @@ public:
 	QInt operator ~ (); // Toán tử NOT
 
 	QInt& operator =(const QInt& a);
+	
+	bool isZero();
+	vector<bool> toSignedNumber(bool &sign); //Đổi sang số lượng dấu
 };
+

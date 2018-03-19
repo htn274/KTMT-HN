@@ -8,6 +8,12 @@ QInt::QInt(unsigned int x)
 {
 	arr[MAX_N-1] = x;
 }
+QInt::QInt(vector<bool> x)
+{
+	for (int i = 0; i < x.size(); i++)
+		this->setBitQNum(i, x[x.size() - i - 1]);
+}
+
 QInt QInt::operator + (const QInt& a) const
 {
 	QInt result(0);
@@ -198,8 +204,26 @@ QInt& QInt::operator=(const QInt & a)
 	return *this;
 }
 
-//********************************************************
-// Scan Dec string sub-functions
+
+bool QInt::isZero()
+{
+	for (int i = MAX_N - 1; i > 0; i--)
+		if (this->arr[i] != 0) return false;
+	return (arr[0] == 1 || arr[0] == (1 << NUM_OF_BIT) - 1);
+}
+
+vector<bool> QInt::toSignedNumber(bool &sign)
+{
+	if (this->getBitQNum(NUM_OF_BIT * MAX_N - 1)) {
+		(*this) = -(*this);
+		sign = 1;
+	}
+	vector<bool> res;
+	for (int i = 0; i < NUM_OF_BIT * MAX_N; i++)
+		res.insert(res.begin(), this->getBitQNum(i));
+	return res;
+}
+
 
 string divideDecStringByTwo(string source) {
 	string result = "";
