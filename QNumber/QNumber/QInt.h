@@ -18,16 +18,21 @@ public:
 
 	vector<bool> convertToBin();
 	string convertToHex();
-	string convertToDec();
-
-	//bool * DecToBin(QInt x);
-	//QInt BinToDec(bool *bit);
-	//char *BinToHex(bool *bit);
-	//char *DecToHex(QInt x);
+	string convertToDec() const;
 
 	friend istream& operator >> (istream is, QInt& a);
 	friend ostream& operator << (ostream os, const QInt& a);
-  
+	
+	QInt operator <<(int index) const;
+	QInt operator >>(int index) const;
+
+
+	bool IsZero() const;
+	bool IsNegative() const;
+	QInt ShiftLeftLogical(int index) const;
+	QInt ShiftRightLogical(int index) const;
+	QInt Divide(const QInt& divisor, QInt& remainder) const;
+
 	QInt operator + (const QInt& a) const;
 	QInt operator -() const;
 	QInt operator - (const QInt& a) const;

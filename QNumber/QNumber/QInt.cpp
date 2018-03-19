@@ -33,9 +33,131 @@ QInt QInt::operator - (const QInt& a) const
 {
 	return (*this) + (-a);
 }
-//QInt QInt::operator * (const QInt& a);
-//QInt QInt::operator / (const QInt& a);
 
+QInt QInt::operator <<(int index) const
+{
+	if (index <= 0) return *this;
+	else {
+		QInt result;
+		result.setBitQNum(BIT_LENGTH - 1, (*this).getBitQNum(BIT_LENGTH - 1));
+		for (int i = BIT_LENGTH - 2; i >= index; i--)
+			result.setBitQNum(i, (*this).getBitQNum(i - index));
+		return result;
+	}
+}
+QInt QInt::operator >>(int index) const
+{
+	if (index <= 0) return *this;
+	else {
+		QInt result;
+		bool msb = (*this).getBitQNum(BIT_LENGTH - 1);
+		for (int i = 0; i < BIT_LENGTH - 1 - index; i++)
+			result.setBitQNum(i, (*this).getBitQNum(i + index));
+		for (int i = BIT_LENGTH - 1 - index; i < BIT_LENGTH; i++)
+			result.setBitQNum(i, msb);
+		return result;
+	}
+}
+
+//*************************************
+// Multiply sub-functions
+bool QInt::IsZero() const
+{
+	for (int i = 0; i < MAX_N; i++)
+		if (arr[i] != 0)
+			return false;
+	return true;
+}
+
+QInt QInt::ShiftRightLogical(int index) const
+{
+	if (index <= 0) return *this;
+	else {
+		QInt result;
+		for (int i = 0; i < BIT_LENGTH - index; i++)
+			result.setBitQNum(i, (*this).getBitQNum(i + index));
+		return result;
+	}
+}
+QInt QInt::ShiftLeftLogical(int index) const
+{
+	if (index <= 0) return *this;
+	else {
+		QInt result;
+		for (int i = index; i < BIT_LENGTH; i++)
+			result.setBitQNum(i, (*this).getBitQNum(i - index));
+		return result;
+	}
+}
+bool QInt::IsNegative() const
+{
+	return (*this).getBitQNum(BIT_LENGTH - 1);
+}
+
+
+QInt QInt::operator * (const QInt& a) const
+{
+	QInt result;
+	QInt at = a;
+	bool bit0, bit1;//2 bit kề nhau trong dãy bit của *this
+	bit0 = 0;
+	bit1 = (*this).getBitQNum(0);
+
+	for (int i = 0; i < BIT_LENGTH; i++) {
+		if (bit1 == 1 && bit0 == 0)
+			result = result - at;
+		else if (bit1 == 0 && bit0 == 1)
+			result = result + at;
+
+		at = at.ShiftLeftLogical(1);
+		bit0 = bit1;
+		bit1 = (*this).getBitQNum(i + 1);
+	}
+	return result;
+}
+QInt QInt::Divide(const QInt& dvs, QInt& rmd) const
+{
+	QInt divisor, dividend;
+	bool negate = false;
+	if ((*this).IsNegative()) {
+		dividend = -(*this);
+		negate = !negate;
+	}
+	else
+		dividend = *this;
+
+	if (dvs.IsNegative()) {
+		divisor = -dvs;
+		negate = !negate;
+	}
+	else
+		divisor = dvs;
+
+	QInt result, remainder, shift;
+	char ch;
+	for (int i = BIT_LENGTH - 1; i >= 0; i--) {
+		shift = divisor << i;
+		if (!shift.IsZero()){
+			remainder = dividend - shift;
+			if (!remainder.IsNegative()) {
+				dividend = remainder;
+				result.setBitQNum(i, 1);
+			}
+		}
+	}
+	rmd = dividend;
+	if (!negate)
+		return result;
+	else
+		return -result;
+}
+QInt QInt::operator / (const QInt& a) const
+{
+	QInt rmd;
+	return (*this).Divide(a, rmd);
+}
+
+// AND OR XOR NOT
 QInt QInt::operator&(QInt & a)
 {
 	QInt res; // Biến lưu kết quả
@@ -44,7 +166,6 @@ QInt QInt::operator&(QInt & a)
 	}
 	return res;
 }
-
 QInt QInt::operator|(QInt & a)
 {
 	QInt res; // Biến lưu kết quả
@@ -53,7 +174,6 @@ QInt QInt::operator|(QInt & a)
 	}
 	return res;
 }
-
 QInt QInt::operator^(QInt & a)
 {
 	QInt res; // Biến lưu kết quả
@@ -62,7 +182,6 @@ QInt QInt::operator^(QInt & a)
 	}
 	return res;
 }
-
 QInt QInt::operator~()
 {
 	QInt res; // Biến lưu kết quả
@@ -79,6 +198,8 @@ QInt& QInt::operator=(const QInt & a)
 	return *this;
 }
 
+//********************************************************
+// Scan Dec string sub-functions
 
 string divideDecStringByTwo(string source) {
 	string result = "";
@@ -150,6 +271,9 @@ vector<bool> generateBinaryArrayFromRandomDecString(string source) {
 	return result;
 }
 
+//********************************************************
+// Scan Hex string sub-functions
+
 int convertHexCharacterToDecNumber(char hexChar) {
 	if (hexChar >= '0' && hexChar <= '9')
 		return hexChar - '0';
@@ -186,6 +310,9 @@ string standardizeBinString(string source) {
 		return standadizedString;
 	}
 }
+
+//********************************************************
+// Scan functions 
 
 void QInt::scanDec(string source) {
 	QInt result;
@@ -243,6 +370,9 @@ void QInt::ScanQInt(string source, int sourceBase) {
 		this->scanHex(source);
 	}
 }
+
+//********************************************************
+// Print Bin and Hex sub-functions
 
 int getTheFirst1BitIndex(QInt x) {
 	int index = MAX_N * NUM_OF_BIT - 1;
@@ -319,6 +449,30 @@ string QInt::convertToHex() {
 	return result;
 }
 
+string QInt::convertToDec() const
+{
+	string result = "";
+	QInt temp;
+	if ((*this).IsNegative())
+		temp = -(*this);
+	else
+		temp = *this;
+
+	QInt base(10), q, rmd;
+	int index = 0;
+
+	int count = 0;
+	char digit;
+	while (!temp.IsZero()) {
+		temp = temp.Divide(base, rmd);
+		digit = rmd.getBitQNum(0) + rmd.getBitQNum(1) * 2 +
+			rmd.getBitQNum(2) * 4 + rmd.getBitQNum(3) * 8 +'0';
+		result = digit + result;
+	}
+	return result;
+}
+//********************************************************
+// Print functions
 void printBin(QInt x) {
 	vector<bool> binString = x.convertToBin();
 	for (int i = 0; i < binString.size(); i++)
