@@ -21,5 +21,13 @@ int main() {
 		cout << signi2[i];
 	cout << endl;
 	system("pause");
+	/*string x = "-12";
+	QInt a;
+	a.ScanQInt(x, 10);
+	a.PrintQInt(16);*/
+	QInt x(9876543);
+	x.printTest();
+	string dec = x.convertToDec();
+	cout << dec << endl;
 	return 0;
 }
