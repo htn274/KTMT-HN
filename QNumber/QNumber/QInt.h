@@ -1,18 +1,16 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
-
 #include "QNum.h"
 using namespace std;
 
 class QInt : public QNum{
 public:
-
-	
-
 	QInt();
 	QInt(unsigned int x);
-  void ScanQInt(string source, int base);
+	QInt(vector<bool> x);
+
+	void ScanQInt(string source, int base);
 	void PrintQInt();
 
 	bool * DecToBin(QInt x);
@@ -35,6 +33,9 @@ public:
 	QInt operator ~ (); // Toán tử NOT
 
 	QInt& operator =(const QInt& a);
+	
+	bool isZero();
+	vector<bool> toSignedNumber(bool &sign); //Đổi sang số lượng dấu
 };
 
 string divideDecStringByTwo(string source);
