@@ -1,5 +1,9 @@
-﻿  main.cpp
-  QNum.cpp
-  Generating Code...
-  QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.exe
-  QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.pdb (Full PDB)
+﻿Build started 19/03/2018 10:12:47 PM.
+     1>Project "D:\Programs\KTMT&HN\KTMT-HN-QInt\QNumber\QNumber\QNumber.vcxproj" on node 2 (Build target(s)).
+     1>Link:
+         QNumber.vcxproj -> D:\Programs\KTMT&HN\KTMT-HN-QInt\QNumber\Debug\QNumber.exe
+     1>Done Building Project "D:\Programs\KTMT&HN\KTMT-HN-QInt\QNumber\QNumber\QNumber.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.08
