@@ -85,6 +85,8 @@
   <ItemGroup>
     <ClCompile Include="BitMani.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Qfloat.cpp" />
+    <ClCompile Include="QInt.cpp" />
     <ClCompile Include="QNum.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

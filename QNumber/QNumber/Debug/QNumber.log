@@ -1,5 +1,5 @@
 ﻿  main.cpp
-  QNum.cpp
-  Generating Code...
+c:\users\administrator\documents\github\ktmt-hn-qint\qnumber\qnumber\main.cpp(11): warning C4018: '<': signed/unsigned mismatch
+c:\users\administrator\documents\github\ktmt-hn-qint\qnumber\qnumber\main.cpp(20): warning C4018: '<': signed/unsigned mismatch
   QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.exe
   QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.pdb (Full PDB)
