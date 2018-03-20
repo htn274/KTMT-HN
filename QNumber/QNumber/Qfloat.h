@@ -7,11 +7,14 @@ using namespace std;
 #define NUM_BIT_EXP		15
 #define NUM_BIT_SIGNI	112
 #define BIT_SIGN		127
+#define MAX_EXP			(1 << (NUM_BIT_EXP - 1)) - 1
+#define MIN_EXP			- (1 << (NUM_BIT_EXP - 1)) + 2
 
 class Qfloat : public QNum{
 //Cấu trúc: 1 bit dấu, 15 bit exp, 112 bits significant
 public:
 	Qfloat();
+	Qfloat(vector<bool>);
 
 	void ScanQfloat(string source, int base);
 	void PrintQfloat();
@@ -39,5 +42,9 @@ public:
 	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
 	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
 	QInt convertToQInt(vector<bool> x1, int sign);
+	bool isZero(vector<bool> a) const;
+	int normalizeSignificant(vector<bool> &a);
+	vector<bool> toBias(int exp);
+	Qfloat inf(bool sign);
 };
 

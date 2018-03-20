@@ -5,6 +5,12 @@ Qfloat::Qfloat()
 	for (int i = 0; i < MAX_N; i++) arr[i] = 0;
 }
 
+Qfloat::Qfloat(vector<bool> a)
+{
+	for (int i = 0; i < a.size(); i++)
+		this->setBitQNum(MAX_N * NUM_OF_BIT - i - 1, a[i]);
+}
+
 void Qfloat::ScanQfloat(string source, int base)
 {
 	if (base == 2) scanBinString(source);
@@ -23,17 +29,21 @@ void Qfloat::scanDecString(string source)
 
 bool Qfloat::isEqualZero() const//Kiểm tra xem số đó bằng 0 
 {
-	for (int i = 1; i < MAX_N; i++)
-		if (arr[i] != 0) return false;
-	return true;
+	int exp = this->getExpValue();
+	vector<bool> signi = this->getSignificant();
+	return (exp == 0 & isZero(signi));
 }
 
 int Qfloat::getExpValue() const
 {
-	int value = - ((1 << (NUM_BIT_EXP - 1)) - 1); // Khởi tạo -2^14-1
+	int value = - MAX_EXP; // Khởi tạo -2^14-1
 	for (int i = 0; i < NUM_BIT_EXP; i++)
-		if (this->getBitQNum(MAX_N * NUM_OF_BIT - NUM_BIT_EXP - 1 + i) == 1) 
-			value += 1 << (i);
+		if (this->getBitQNum(112 + i) == 1) {
+			int tmp = 1 << i;
+			value += tmp;
+		}
+
+	if (value == -MAX_EXP) return 0;
 	return value;
 }
 
@@ -60,13 +70,16 @@ Qfloat & Qfloat::operator=(const Qfloat & a)
 
 Qfloat Qfloat::operator+(const Qfloat & a) // (*this) + a = kq
 {
+	Qfloat zero;
+	zero.scanBinString("0");
 	//Một trong 2 số bằng 0 thì trả về số kia
 	if (this->isEqualZero()) return a;
 	if (a.isEqualZero()) return *this;
 	//Lấy giá trị mũ
-	int exp1, exp2;
+	int exp1, exp2, exp;
 	exp1 = this->getExpValue(); // Giá trị mũ của *this
-	exp2 = this->getExpValue(); // giá trị mũ của a
+	exp2 = a.getExpValue(); // giá trị mũ của a
+	exp = exp1;
 	//Lấy phần trị
 	vector<bool> signi1, signi2;
 	signi1 = this->getSignificant();
@@ -77,11 +90,11 @@ Qfloat Qfloat::operator+(const Qfloat & a) // (*this) + a = kq
 	int d = exp1 - exp2;
 	if (exp1 < exp2) {
 		signi1 = shiftSignificantRight(signi1, abs(d));
-		exp1 = exp2;
+		exp = exp2;
 	} 
 	else if (exp2 < exp1) {
 		signi2 = shiftSignificantRight(signi2, abs(d));
-		exp2 = exp1;
+		exp = exp1;
 	}
 	//Lấy dấu
 	bool sign1, sign2, sign;
@@ -90,8 +103,31 @@ Qfloat Qfloat::operator+(const Qfloat & a) // (*this) + a = kq
 	sign = 0;
 
 	vector<bool> resSignificant = addSignificant(signi1, signi2, sign1, sign2, sign);
+	
+	//Nếu resSignificant = 0 thì trả về 0
+	if (isZero(resSignificant)) {
+		return zero;
+	}
 
-	return Qfloat();
+	//Chuẩn hóa kết quả 
+	d = normalizeSignificant(resSignificant);
+	exp = exp + d;
+	if (exp < MIN_EXP) return zero;
+	if (exp > MAX_EXP) return inf(sign);
+	vector<bool> e = toBias(exp);
+	//Tạo kết quả Qfloat
+	vector<bool> res(resSignificant);
+	res.insert(res.begin(), e.begin(), e.end());
+	res.insert(res.begin(), sign);
+	return Qfloat(res);
+}
+
+Qfloat Qfloat::operator-(const Qfloat & a)
+{
+	//Đổi dấu của a lại
+	Qfloat minus_a = a;
+	minus_a.toogleBitQNum(0);
+	return (*this) + minus_a;
 }
 
 vector<bool> Qfloat::shiftSignificantRight(vector<bool> a, int x)
@@ -114,8 +150,8 @@ vector<bool> Qfloat::addSignificant(vector<bool> x1, vector<bool> x2, bool sign1
 {
 	QInt signi1, signi2, sumSigni;
 	vector<bool> res;
-	signi1 = convertToQInt(x1, sign);
-	signi2 = convertToQInt(x2, sign);
+	signi1 = convertToQInt(x1, sign1);
+	signi2 = convertToQInt(x2, sign2);
 	sumSigni = signi1 + signi2;
 	
 	res = sumSigni.toSignedNumber(sign);
@@ -128,6 +164,53 @@ QInt Qfloat::convertToQInt(vector<bool> x1, int sign)
 	if (sign) {
 		res = -res;
 	}
+	return res;
+}
+
+bool Qfloat::isZero(vector<bool> a) const
+{
+	for (int i = 0; i < a.size(); i++)
+		if (a[i]) return false;
+	return true;
+}
+
+int Qfloat::normalizeSignificant( vector<bool> &a)
+{
+	while (a.size() > NUM_BIT_SIGNI + 2) a.erase(a.begin());
+	int res = 0;
+	//Overflow
+	if (a[0]) {
+		a = shiftSignificantRight(a, 1);
+		res++;
+		a.erase(a.begin());
+	}
+	else
+	{
+		a.erase(a.begin());
+		while (!a[0]) {
+			a = shiftSignificantLeft(a, 1);
+			res--;
+		}
+	}
+	a.erase(a.begin());
+	return res;
+}
+
+vector<bool> Qfloat::toBias(int exp)
+{
+	exp = exp + MAX_EXP;
+	vector<bool> e(NUM_BIT_EXP);
+	for (int i = 0; i < NUM_BIT_EXP; i++)
+		e[NUM_BIT_EXP - 1 - i] = getBit(exp, i);
+
+	return e;
+}
+
+Qfloat Qfloat::inf(bool sign)
+{
+	Qfloat res;
+	res.arr[0] = (1 << NUM_BIT_EXP) - 1;
+	if (!sign) res.setBitQNum(0, 0);
 	return res;
 }
 
