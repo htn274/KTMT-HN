@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+﻿  main.cpp
+c:\users\administrator\documents\github\ktmt-hn-qint\qnumber\qnumber\main.cpp(11): warning C4018: '<': signed/unsigned mismatch
+c:\users\administrator\documents\github\ktmt-hn-qint\qnumber\qnumber\main.cpp(20): warning C4018: '<': signed/unsigned mismatch
+  QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.exe
+  QNumber.vcxproj -> C:\Users\Administrator\Documents\GitHub\KTMT-HN-QInt\QNumber\Debug\QNumber.pdb (Full PDB)
+=======
 ﻿Build started 19/03/2018 10:12:47 PM.
      1>Project "D:\Programs\KTMT&HN\KTMT-HN-QInt\QNumber\QNumber\QNumber.vcxproj" on node 2 (Build target(s)).
      1>Link:
@@ -7,3 +14,4 @@
 Build succeeded.
 
 Time Elapsed 00:00:00.08
+>>>>>>> 9612f892ea7ce9f3f00b63b03c97a32e3cdc0de5

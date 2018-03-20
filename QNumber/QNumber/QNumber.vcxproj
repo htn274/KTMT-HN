@@ -85,6 +85,10 @@
   <ItemGroup>
     <ClCompile Include="BitMani.cpp" />
     <ClCompile Include="main.cpp" />
+<<<<<<< HEAD
+    <ClCompile Include="Qfloat.cpp" />
+=======
+>>>>>>> 9612f892ea7ce9f3f00b63b03c97a32e3cdc0de5
     <ClCompile Include="QInt.cpp" />
     <ClCompile Include="QNum.cpp" />
   </ItemGroup>
