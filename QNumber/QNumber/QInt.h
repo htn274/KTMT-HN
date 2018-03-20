@@ -5,22 +5,34 @@
 using namespace std;
 
 class QInt : public QNum{
+private:
+	void scanBin(string source);
+	void scanHex(string source);
+	void scanDec(string source);
 public:
 	QInt();
 	QInt(unsigned int x);
 	QInt(vector<bool> x);
-
 	void ScanQInt(string source, int base);
-	void PrintQInt();
+	void PrintQInt(int base);
 
-	bool * DecToBin(QInt x);
-	QInt BinToDec(bool *bit);
-	char *BinToHex(bool *bit);
-	char *DecToHex(QInt x);
+	vector<bool> convertToBin();
+	string convertToHex();
+	string convertToDec() const;
 
 	friend istream& operator >> (istream is, QInt& a);
 	friend ostream& operator << (ostream os, const QInt& a);
-  
+	
+	QInt operator <<(int index) const;
+	QInt operator >>(int index) const;
+
+
+	bool IsZero() const;
+	bool IsNegative() const;
+	QInt ShiftLeftLogical(int index) const;
+	QInt ShiftRightLogical(int index) const;
+	QInt Divide(const QInt& divisor, QInt& remainder) const;
+
 	QInt operator + (const QInt& a) const;
 	QInt operator -() const;
 	QInt operator - (const QInt& a) const;
@@ -38,10 +50,3 @@ public:
 	vector<bool> toSignedNumber(bool &sign); //Đổi sang số lượng dấu
 };
 
-string divideDecStringByTwo(string source);
-bool isFullZero(string source);
-vector<bool> generateBinaryArrayFromDecString(string source);
-QInt scanDecString(string source);
-int convertHexCharacterToDecNumber(char hexChar);
-string convertDecNumberToBinString(int decNum);
-string standardizeBinString(string source);

@@ -19,6 +19,7 @@ void QNum::printTest()
 	printf("\n");
 }
 
+
 bool QNum::getBitQNum(int index) const
 {
 	int i = MAX_N - 1;
@@ -30,7 +31,7 @@ bool QNum::getBitQNum(int index) const
 	return getBit(arr[i], index);
 }
 
-bool QNum::setBitQNum(int index, bool bit)
+bool QNum::setBitQNum(int index, bool bit) 
 {
 	if (index > NUM_OF_BIT * MAX_N || index < 0) return false;
 	int i = MAX_N - 1;

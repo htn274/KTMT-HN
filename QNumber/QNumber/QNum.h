@@ -3,6 +3,7 @@
 #include "stdio.h"
 
 #define MAX_N		4
+#define BIT_LENGTH MAX_N*NUM_OF_BIT
 
 class QNum {
 protected: 
