@@ -1,7 +1,6 @@
 ﻿#include <iostream>
 #include <string>
 #include <vector>
-
 #include "QNum.h"
 using namespace std;
 
@@ -13,21 +12,24 @@ private:
 public:
 	QInt();
 	QInt(unsigned int x);
+	QInt(vector<bool> x);
 	void ScanQInt(string source, int base);
 	void PrintQInt(int base);
 
 	vector<bool> convertToBin();
 	string convertToHex();
-	string convertToDec();
+	string convertToDec() const;
+	
+	QInt operator <<(int index) const;
+	QInt operator >>(int index) const;
 
-	//bool * DecToBin(QInt x);
-	//QInt BinToDec(bool *bit);
-	//char *BinToHex(bool *bit);
-	//char *DecToHex(QInt x);
 
-	friend istream& operator >> (istream is, QInt& a);
-	friend ostream& operator << (ostream os, const QInt& a);
-  
+	bool IsZero() const;
+	bool IsNegative() const;
+	QInt ShiftLeftLogical(int index) const;
+	QInt ShiftRightLogical(int index) const;
+	QInt Divide(const QInt& divisor, QInt& remainder) const;
+
 	QInt operator + (const QInt& a) const;
 	QInt operator -() const;
 	QInt operator - (const QInt& a) const;
@@ -40,4 +42,8 @@ public:
 	QInt operator ~ (); // Toán tử NOT
 
 	QInt& operator =(const QInt& a);
+	
+	bool isZero();
+	vector<bool> toSignedNumber(bool &sign); //Đổi sang số lượng dấu
 };
+

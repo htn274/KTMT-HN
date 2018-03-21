@@ -1,14 +1,15 @@
-#include "QInt.h"
+#include "Qfloat.h"
 #include <iostream>
 
 using namespace std;
 
-int main() {
 
-	string x = "-12";
-	QInt a;
-	a.ScanQInt(x, 10);
-	a.PrintQInt(16);
+
+int main() {
+	Qfloat x;
+	string a = "-0.0000000000000000000000000001";
+	x.scanDecString(a);
+	x.printTest();
 
 	return 0;
 }
