@@ -3,12 +3,11 @@
 
 using namespace std;
 
+
 int main() {
-	Qfloat x, y, z;
-	x.ScanQfloat("01000000000000111101111", 2);
-	y.ScanQfloat("11000000000000111010100", 2);
-	z = x + y;
-	z.printTest();
-	system("pause");
+	Qfloat x;
+	string a = "-0.0000000000000000000000000001";
+	x.scanDecString(a);
+	x.printTest();
 	return 0;
 }

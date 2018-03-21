@@ -23,10 +23,6 @@ void Qfloat::scanBinString(string source)
 		this->setBitQNum(MAX_N * NUM_OF_BIT - i - 1, source[i] - '0');
 }
 
-void Qfloat::scanDecString(string source)
-{
-}
-
 bool Qfloat::isEqualZero() const//Kiểm tra xem số đó bằng 0 
 {
 	int exp = this->getExpValue();
@@ -212,6 +208,159 @@ Qfloat Qfloat::inf(bool sign)
 	res.arr[0] = (1 << NUM_BIT_EXP) - 1;
 	if (!sign) res.setBitQNum(0, 0);
 	return res;
+}
+
+//ScanDec
+string multiplyString(string decString) {
+	int carry = 0;
+	int doubleDigit;
+	char resultDigit;
+	string result = "";
+	int currentIndex = decString.length() - 1;
+	
+	while (currentIndex >= 0) {
+		int doubleDigit = (decString[currentIndex] - '0') * 2 + carry;
+		resultDigit = doubleDigit % 10 + '0';
+		carry = doubleDigit / 10;
+		if (currentIndex != 0)
+			result = resultDigit + result;
+		else {
+			char firstDigit = carry + '0';
+			result = resultDigit + result;
+			result = firstDigit + result;
+		}
+
+		currentIndex--;
+	}
+
+	if (result[0] == '0')
+		return result.substr(1);
+	else
+		return result;
+}
+
+bool isZero(string decString) {
+	for (int i = 0; i < decString.length(); i++)
+		if (decString[i] != '0')
+			return false;
+
+	return true;
+}
+
+bool isNegative(string source) {
+	return source[0] == '-';
+}
+
+bool isUnnormal(string source) {
+	if (!isNegative(source))
+		return source[0] == '0';
+	else
+		return source[1] == '0';
+}
+
+string getDecFraction(string source) {
+	int dotPosition = source.find_first_of('.');
+	return source.substr(dotPosition + 1);
+}
+
+string getDecSigni(string source) {
+	int dotPostion = source.find_first_of('.');
+	if (isNegative(source))
+		return source.substr(1, dotPostion - 1);
+	else
+		return source.substr(0, dotPostion);
+}
+
+string getBinFraction(string decFraction) {
+	string result = "";
+	string sourceString = decFraction;
+	string multipliedString = decFraction;
+
+	while (!isZero(sourceString) && result.length() < NUM_BIT_SIGNI) {
+		multipliedString = multiplyString(sourceString);
+		if (multipliedString.length() > sourceString.length()) {
+			result += "1";
+			sourceString = multipliedString.substr(1);
+		}
+		else {
+			result += "0";
+			sourceString = multipliedString;
+		}
+	}
+
+	return result;
+}
+
+string getBinSigni(string decSigni) {
+	QInt signi;
+	signi.ScanQInt(decSigni, 10);
+	vector<bool> sig = signi.convertToBin();
+	string result = "";
+	for (int i = 0; i < sig.size(); i++)
+		result += sig[i] + '0';
+
+	return result;
+}
+
+void Qfloat::setSignBit(string source) {
+	if (source[0] == '-')
+		this->setBitQNum(0, 1);
+	else
+		this->setBitQNum(0, 0);
+}
+
+void Qfloat::setExpBits(string source) {
+	if (isUnnormal(source)) {
+		for (int i = 1; i < NUM_BIT_EXP + 1; i++)
+			this->setBitQNum(i, 0);
+	}
+	else {
+		string decInt = getDecSigni(source);
+		string binInt = getBinSigni(decInt);
+		int decExp = binInt.length() - 1;
+		int biasExp = decExp + BIAS;
+
+		QInt x(biasExp);
+		vector<bool> exp = x.convertToBin();
+		int lengthDifference = NUM_BIT_EXP - exp.size();
+		for (int i = 0; i < NUM_BIT_EXP;i++) {
+			if (i < lengthDifference)
+				this->setBitQNum(i + 1, 0);
+			else
+				this->setBitQNum(i + 1, exp[i - lengthDifference]);
+		}
+	}
+}
+
+void Qfloat::setSignificantBits(string source) {
+	if (isUnnormal(source)) {
+		string decFraction = getDecFraction(source);
+		string binFraction = getBinFraction(decFraction);
+		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
+			this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
+		}
+	}
+	else {
+		string decSignificant = getDecSigni(source);
+		string binSignificant = getBinSigni(decSignificant);
+		string decFraction = getDecFraction(source);
+		string binFraction = getBinFraction(decFraction);
+		binFraction = binSignificant.substr(1) + binFraction;
+		binFraction = binFraction.substr(0, NUM_BIT_SIGNI);
+
+		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
+			if (i >= binFraction.length())
+				this->setBitQNum(i + 1 + NUM_BIT_EXP, 0);
+			else
+				this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
+		}
+	}
+}
+
+void Qfloat::scanDecString(string source) {
+	this->setSignBit(source);
+	this->setExpBits(source);
+	this->setSignificantBits(source);
 }
 
 

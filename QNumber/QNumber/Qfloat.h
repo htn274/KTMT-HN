@@ -9,9 +9,15 @@ using namespace std;
 #define BIT_SIGN		127
 #define MAX_EXP			(1 << (NUM_BIT_EXP - 1)) - 1
 #define MIN_EXP			- (1 << (NUM_BIT_EXP - 1)) + 2
+#define BIAS			16383
 
 class Qfloat : public QNum{
 //Cấu trúc: 1 bit dấu, 15 bit exp, 112 bits significant
+private:
+	void setSignBit(string source);
+	void setExpBits(string source);
+	void setSignificantBits(string source);
+
 public:
 	Qfloat();
 	Qfloat(vector<bool>);

@@ -13,8 +13,13 @@ void QNum::Init(int index, int data)
 
 void QNum::printTest()
 {
-	for (int i = MAX_N * NUM_OF_BIT - 1; i >= 0;  i--) {
+
+	for (int i = 0; i < MAX_N * NUM_OF_BIT;i++) {
 		printf("%d", this->getBitQNum(i));
+		if (i == 0)
+			printf(" ");
+		if (i == 15)
+			printf(" ");
 	}
 	printf("\n");
 }
