@@ -366,3 +366,4 @@ void Qfloat::scanDecString(string source) {
 
 
 
+

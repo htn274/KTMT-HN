@@ -38,5 +38,14 @@
     <ClCompile Include="QNum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QInt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+<<<<<<< HEAD
+    <ClCompile Include="Qfloat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+=======
+>>>>>>> 9612f892ea7ce9f3f00b63b03c97a32e3cdc0de5
   </ItemGroup>
 </Project>

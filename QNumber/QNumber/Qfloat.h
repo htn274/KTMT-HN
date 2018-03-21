@@ -17,6 +17,7 @@ private:
 	void setSignBit(string source);
 	void setExpBits(string source);
 	void setSignificantBits(string source);
+
 public:
 	Qfloat();
 	Qfloat(vector<bool>);
@@ -53,4 +54,3 @@ public:
 	Qfloat inf(bool sign);
 };
 
-string multiplyString(string decString);

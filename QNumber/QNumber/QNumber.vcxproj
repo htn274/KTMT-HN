@@ -20,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -85,6 +85,11 @@
   <ItemGroup>
     <ClCompile Include="BitMani.cpp" />
     <ClCompile Include="main.cpp" />
+<<<<<<< HEAD
+    <ClCompile Include="Qfloat.cpp" />
+=======
+>>>>>>> 9612f892ea7ce9f3f00b63b03c97a32e3cdc0de5
+    <ClCompile Include="QInt.cpp" />
     <ClCompile Include="QNum.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
