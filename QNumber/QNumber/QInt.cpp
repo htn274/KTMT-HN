@@ -508,10 +508,17 @@ void printHex(QInt x) {
 	cout << hexString;
 }
 
+void printDec(QInt x) {
+	string decString = x.convertToDec();
+	cout << decString;
+}
+
 void QInt::PrintQInt(int base) {
 	if (base == 2)
 		printBin(*this);
 	else if (base == 16)
 		printHex(*this);
+	else if (base == 10)
+		printDec(*this);
 }
 

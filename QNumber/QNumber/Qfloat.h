@@ -12,6 +12,16 @@ using namespace std;
 
 class Qfloat : public QNum{
 //Cấu trúc: 1 bit dấu, 15 bit exp, 112 bits significant
+private:
+	//Một số hàm chức năng 
+	vector<bool> shiftSignificantRight(vector<bool> a, int x);
+	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
+	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
+	QInt convertToQInt(vector<bool> x1, int sign);
+	bool isZero(vector<bool> a) const;
+	int normalizeSignificant(vector<bool> &a);
+	vector<bool> toBias(int exp);
+	Qfloat inf(bool sign);
 public:
 	Qfloat();
 	Qfloat(vector<bool>);
@@ -37,14 +47,5 @@ public:
 	vector<bool> getSignificant() const; // Lấy phần trị
 	bool getSign() const; // Trả về dấu của số thực
 
-	//Một số hàm chức năng 
-	vector<bool> shiftSignificantRight(vector<bool> a, int x);
-	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
-	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
-	QInt convertToQInt(vector<bool> x1, int sign);
-	bool isZero(vector<bool> a) const;
-	int normalizeSignificant(vector<bool> &a);
-	vector<bool> toBias(int exp);
-	Qfloat inf(bool sign);
 };
 
