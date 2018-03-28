@@ -6,7 +6,7 @@ using namespace std;
 
 int main() {
 	Qfloat x;
-	string a = "-0.0000000000000000000000000001";
+	string a = "-23.40625";
 	x.scanDecString(a);
 	x.printTest();
 	return 0;

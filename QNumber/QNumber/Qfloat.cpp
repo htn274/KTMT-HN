@@ -304,14 +304,14 @@ string getBinSigni(string decSigni) {
 
 void Qfloat::setSignBit(string source) {
 	if (source[0] == '-')
-		this->setBitQNum(0, 1);
+		this->setBitQNum(BIT_LENGTH - 1, 1);
 	else
-		this->setBitQNum(0, 0);
+		this->setBitQNum(BIT_LENGTH - 1, 0);
 }
 
 void Qfloat::setExpBits(string source) {
 	if (isUnnormal(source)) {
-		for (int i = 1; i < NUM_BIT_EXP + 1; i++)
+		for (int i = NUM_BIT_SIGNI; i < NUM_BIT_EXP + NUM_BIT_SIGNI; i++)
 			this->setBitQNum(i, 0);
 	}
 	else {
@@ -322,12 +322,14 @@ void Qfloat::setExpBits(string source) {
 
 		QInt x(biasExp);
 		vector<bool> exp = x.convertToBin();
-		int lengthDifference = NUM_BIT_EXP - exp.size();
-		for (int i = 0; i < NUM_BIT_EXP;i++) {
-			if (i < lengthDifference)
-				this->setBitQNum(i + 1, 0);
-			else
-				this->setBitQNum(i + 1, exp[i - lengthDifference]);
+		int length = exp.size();
+		//int lengthDifference = NUM_BIT_EXP - exp.size();
+		for (int i = 0; i < NUM_BIT_EXP; i++) {
+			if (i > length)
+				this->setBitQNum(i + NUM_BIT_SIGNI, 0);
+			else {
+				this->setBitQNum(i + NUM_BIT_SIGNI, exp[length - i - 1]);
+			}
 		}
 	}
 }
@@ -336,8 +338,11 @@ void Qfloat::setSignificantBits(string source) {
 	if (isUnnormal(source)) {
 		string decFraction = getDecFraction(source);
 		string binFraction = getBinFraction(decFraction);
-		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
-			this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
+		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
+			if (NUM_BIT_SIGNI - 1 - i >= binFraction.length())
+				this->setBitQNum(i, 0);
+			else
+				this->setBitQNum(i, binFraction[NUM_BIT_SIGNI - 1 - i] - '0');
 		}
 	}
 	else {
@@ -348,11 +353,11 @@ void Qfloat::setSignificantBits(string source) {
 		binFraction = binSignificant.substr(1) + binFraction;
 		binFraction = binFraction.substr(0, NUM_BIT_SIGNI);
 
-		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
-			if (i >= binFraction.length())
-				this->setBitQNum(i + 1 + NUM_BIT_EXP, 0);
+		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
+			if (NUM_BIT_SIGNI - 1 - i > binFraction.length())
+				this->setBitQNum(i, 0);
 			else
-				this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
+				this->setBitQNum(i, binFraction[NUM_BIT_SIGNI - 1 - i] - '0');
 		}
 	}
 }
