@@ -31,7 +31,8 @@ public:
 
 	bool isEqualZero() const; //Kiểm tra số Qfloat = 0
 	int getExpValue() const; //Lấy giá trị số mũ của QFloat
-	vector<bool> getSignificant() const; // Lấy phần trị
+	// Lấy các bit phần trị (bit bậc nhỏ có chỉ số nhỏ, bit bậc lớn chỉ số lớn)
+	vector<bool> getSignificant() const; 
 	bool getSign() const; // Trả về dấu của số thực
 
 	//Một số hàm chức năng 
@@ -39,5 +40,9 @@ public:
 	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
 	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
 	QInt convertToQInt(vector<bool> x1, int sign);
+	// Đưa về dạng dấu chấm tĩnh, lưu phần nguyên và phần phân vào integer và decimal
+	void Deformalize(vector<bool>& integer, vector<bool>& decimal) const;
+	//Chuyển Qfloat về số thập phân tĩnh
+	string ToDec() const;
 };
 
