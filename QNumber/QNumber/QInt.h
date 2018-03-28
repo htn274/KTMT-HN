@@ -19,9 +19,6 @@ public:
 	vector<bool> convertToBin();
 	string convertToHex();
 	string convertToDec() const;
-
-	friend istream& operator >> (istream is, QInt& a);
-	friend ostream& operator << (ostream os, const QInt& a);
 	
 	QInt operator <<(int index) const;
 	QInt operator >>(int index) const;
