@@ -27,7 +27,7 @@ int main() {
 	mainCaculate("INPUT.TXT", "OUTPUT.TXT");
 // Test chương trình Qfloat
 	Qfloat x;
-	string a = "-0.0000000000000000000000000001";
+	string a = "-23.40625";
 	x.scanDecString(a);
 	x.printTest();
 
