@@ -224,11 +224,13 @@ vector<bool> QInt::toSignedNumber(bool &sign)
 	return res;
 }
 
-
+// Hàm thực hiện chia một số nguyên dưới dạng chuỗi kí tự cho 2
+// Input: Giá trị thập phân dưới dạng chuỗi kí tự
+// Output: Giá trị thập phân dưới dạng chuỗi kí tự sau khi đã chia chuỗi input cho 2
 string divideDecStringByTwo(string source) {
 	string result = "";
-	int remainder = 0;
-	char quotent;
+	int remainder = 0;           // Số dư
+	char quotent;				 
 	int length = source.length();
 	int currentDigitPosition = 0;
 	
@@ -245,6 +247,7 @@ string divideDecStringByTwo(string source) {
 	return result;
 }
 
+// Hàm kiểm tra xem chuối input có phải toàn kí tự '0' hay không
 bool isFullZero(string source) {
 	int currentPosition = 0;
 	
@@ -258,11 +261,13 @@ bool isFullZero(string source) {
 		return false;
 }
 
+// Hàm lấy số dư khi chia một số nguyên dưới dạng chuỗi kí tự cho 2
 bool getRemainder(string dividend) {
 	int lastDigit = dividend[dividend.length() - 1] - '0';
 	return lastDigit % 2;
 }
 
+// Hàm kiểm tra xem số nguyên input có phải là số âm hay không
 bool checkNegativeDecString(string source) {
 	if (source[0] == '-')
 		return true;
@@ -270,6 +275,9 @@ bool checkNegativeDecString(string source) {
 		return false;
 }
 
+// Hàm tạo ra một mảng các giá trị kiểu bool tương ứng với biểu diễn nhị phân cho giá trị thập phân đầu vào
+// Input: số nguyên thập phân dưới dạng chuỗi kí tự
+// Output: mảng các giá trị kiểu bool
 vector<bool> generateBinaryArrayFromPositiveDecString(string source) {
 	vector<bool> result;
 	string dividend = source;
@@ -284,6 +292,8 @@ vector<bool> generateBinaryArrayFromPositiveDecString(string source) {
 	return result;
 }
 
+// Hàm này tạo ra một mảng các giá trị kiểu bool từ một số nguyên bất kì (không kể âm hay dương)
+// Mảng trả về sẽ là biểu diễn nhị phân của trị tuyệt đối của giá trị đầu vào
 vector<bool> generateBinaryArrayFromRandomDecString(string source) {
 	vector<bool> result;
 	if (!checkNegativeDecString(source))
@@ -298,6 +308,7 @@ vector<bool> generateBinaryArrayFromRandomDecString(string source) {
 //********************************************************
 // Scan Hex string sub-functions
 
+// Hàm có tác dụng chuyển một kí tự thuộc hệ thập lục phân sang giá trị của nó trong hệ thập phân
 int convertHexCharacterToDecNumber(char hexChar) {
 	if (hexChar >= '0' && hexChar <= '9')
 		return hexChar - '0';
@@ -307,6 +318,7 @@ int convertHexCharacterToDecNumber(char hexChar) {
 		return hexChar - 'A' + 10;
 }
 
+// Hàm chuyển một số nguyên kiểu int sang một chuỗi nhị phân biểu diễn giá trị nguyên đó
 string convertDecNumberToBinString(int decNum) {
 	string result = "";
 	char remainderChar;
@@ -322,6 +334,8 @@ string convertDecNumberToBinString(int decNum) {
 	return result;
 }
 
+// Hàm này có tác dụng "chuẩn hóa" các chuỗi nhị phân vừa tạo ra ở trên
+// Nếu chuỗi nhị phân nào có độ dài nhỏ hơn 4 thì hàm sẽ tự động thêm kí tự '0' vào trước chuỗi đó cho đủ độ dài
 string standardizeBinString(string source) {
 	if (source.length() == 4)
 		return source;
@@ -338,6 +352,7 @@ string standardizeBinString(string source) {
 //********************************************************
 // Scan functions 
 
+// Hàm scan một giá trị thập phân kiểu chuỗi và lưu vào đối tượng
 void QInt::scanDec(string source) {
 	QInt result;
 	vector<bool> binaryArray = generateBinaryArrayFromRandomDecString(source);
@@ -355,6 +370,7 @@ void QInt::scanDec(string source) {
 	*this = result;
 }
 
+// Hàm scan một giá trị nhị phân kiểu chuỗi
 void QInt::scanBin(string source) {
 	QInt result;
 	int currentPosition = source.length() - 1;
@@ -368,6 +384,8 @@ void QInt::scanBin(string source) {
 	*this = result;
 }
 
+
+// Hàm scan một giá trị thập lục phân kiểu chuỗi 
 void QInt::scanHex(string source) {
 	string resultBinString = "";
 	int currentPosition = source.length() -1;
@@ -383,6 +401,8 @@ void QInt::scanHex(string source) {
 	this->scanBin(resultBinString);
 }
 
+// Hàm scan tổng quát cho các trường hợp
+// Input: chuỗi kí tự cần scan (source), và hệ cơ số mà chuỗi đó đanng biểu diễn (base)  
 void QInt::ScanQInt(string source, int sourceBase) {
 	if (sourceBase == 10) {
 		this->scanDec(source);
@@ -398,6 +418,7 @@ void QInt::ScanQInt(string source, int sourceBase) {
 //********************************************************
 // Print Bin and Hex sub-functions
 
+// Tìm vị trí của bit 1 đầu tiên hay nói cách khác là tìm vị trí của MSB
 int getTheFirst1BitIndex(QInt x) {
 	int index = MAX_N * NUM_OF_BIT - 1;
 	
@@ -408,6 +429,7 @@ int getTheFirst1BitIndex(QInt x) {
 	return index;
 }
 
+// Chuyển đối tượng QInt sang một mảng các giá trị nhị phân tương ứng biểu diễn giá trị của đối tượng
 vector<bool> QInt::convertToBin() {
 	vector<bool> result;
 	int index = getTheFirst1BitIndex(*this);
@@ -420,6 +442,7 @@ vector<bool> QInt::convertToBin() {
 	return result;
 }
 
+// Chuyển một số nguyên hệ thập phân  từ 0 đến 15 sang một kí tự thuộc hệ thập lục phân 
 char convertDecNumberToHexNumber(int decNum) {
 	if (decNum >= 0 && decNum <= 9)
 		return decNum + '0';
@@ -427,6 +450,9 @@ char convertDecNumberToHexNumber(int decNum) {
 		return decNum - 10 + 'A';
 }
 
+// Lấy 4 bit đầu tiên tính từ vị trí đang xét
+// Input: mảng các bit cần trích xuất, index là vị trí bắt đầu trích xuất
+// Output: trả về một mảng 4 bit tính từ index
 vector<bool> getTheFirst4BitsAtIndex(vector<bool> source, int &index) {
 	vector<bool> result;
 	for (int i = index; i < index + 4; i++) {
@@ -439,6 +465,7 @@ vector<bool> getTheFirst4BitsAtIndex(vector<bool> source, int &index) {
 	return result;
 }
 
+// Chuyển 4 bit vừa lấy được thành số nguyên thập phân
 int convertFrom4BitsToDec(vector<bool> source) {
 	int result = 0;
 	for (int i = 0; i < source.size(); i++)
@@ -447,6 +474,7 @@ int convertFrom4BitsToDec(vector<bool> source) {
 	return result;
 }
 
+// Đảo ngược thứ tự các bit của mảng và trả về một mảng khác
 vector<bool> revertBinArray(vector<bool> source){
 	vector<bool> result;
 	for (int i = source.size() - 1; i >= 0; i--) {
@@ -455,6 +483,8 @@ vector<bool> revertBinArray(vector<bool> source){
 	return result;
 }
 
+// Chuyển giá trị QInt hiện tại sang hệ thập lục phân
+// Output: chuỗi thập lục phân biểu diễn giá trị mà đối tượng đang lưu giữ
 string QInt::convertToHex() {
 	
 	vector<bool> wholeBitArray = this->convertToBin();
@@ -473,6 +503,7 @@ string QInt::convertToHex() {
 	return result;
 }
 
+// Chuyển giá trị QInt sang chuỗi thập phân tương ứng
 string QInt::convertToDec() const
 {
 	string result = "";
@@ -497,22 +528,26 @@ string QInt::convertToDec() const
 }
 //********************************************************
 // Print functions
+
+// Xuất ra giá trị dưới dạng nhị phân
 void printBin(QInt x) {
 	vector<bool> binString = x.convertToBin();
 	for (int i = 0; i < binString.size(); i++)
 		cout << binString[i];
 }
-
+// Xuất ra giá trị dưới dạng thập lục phân
 void printHex(QInt x) {
 	string hexString = x.convertToHex();
 	cout << hexString;
 }
-
+// Xuất ra giá trị dưới dạng thập phân
 void printDec(QInt x) {
 	string decString = x.convertToDec();
 	cout << decString;
 }
 
+// Hàm xuất tổng quát, người dùng có thể chọn hệ cơ số mà mình muốn máy tính xuất ra
+// Intput: base là hệ cơ số muốn xuất ra.
 void QInt::PrintQInt(int base) {
 	if (base == 2)
 		printBin(*this);

@@ -12,12 +12,14 @@ Qfloat::Qfloat(vector<bool> a)
 		this->setBitQNum(MAX_N * NUM_OF_BIT - i - 1, a[i]);
 }
 
+// Hàm scan tổng quát với hai hệ cơ số là nhị phân và thập phân
 void Qfloat::ScanQfloat(string source, int base)
 {
 	if (base == 2) scanBinString(source);
 	else scanDecString(source);
 }
 
+// Đọc vào một chuỗi nhị phân và lưu giá trị
 void Qfloat::scanBinString(string source)
 {
 	for (int i = 0; i < source.length(); i++)
@@ -169,7 +171,7 @@ QInt Qfloat::convertToQInt(vector<bool> x1, int sign)
 
 //Đổi các bit phần trị từ vector bool sang QInt
 //thêm bit lớn nhất bằng 1 (tổng NUM_BIT_SIGNI+1 bit)
-/*QInt VectorBoolToQInt(const vector<bool>& a)
+QInt VectorBoolToQInt(const vector<bool>& a)
 {
 	QInt result;
 	for (bool i = 0; i < NUM_BIT_SIGNI; i++)
@@ -185,7 +187,7 @@ QInt MultiplySignficant(const QInt& a, const QInt& b)
 		if (b.getBitQNum(i) == 1)
 			result = result + a.ShiftRightLogical(NUM_BIT_SIGNI + 1 - i);
 	return result;
-}*/
+}
 
 bool Qfloat::isZero(vector<bool> a) const
 {
@@ -235,6 +237,8 @@ Qfloat Qfloat::inf(bool sign)
 }
 
 //ScanDec
+// Hàm có tác dụng nhân một giá trị thập phân kiểu chuỗi với 2
+// Kết quả trả về là giá trị thập phân kiểu chuỗi kí tự sau khi nhân với 2
 string multiplyString(string decString) {
 	int carry = 0;
 	int doubleDigit;
@@ -263,6 +267,7 @@ string multiplyString(string decString) {
 		return result;
 }
 
+// Kiểm trả xem giá trị mà chuỗi biểu diễn có phải là 0 hay không
 bool isZero(string decString) {
 	for (int i = 0; i < decString.length(); i++)
 		if (decString[i] != '0')
@@ -271,10 +276,12 @@ bool isZero(string decString) {
 	return true;
 }
 
+// Kiểm tra số âm
 bool isNegative(string source) {
 	return source[0] == '-';
 }
 
+// Kiểm tra số có phải dạng chuẩn hóa hay không
 bool isUnnormal(string source) {
 	if (!isNegative(source))
 		return source[0] == '0';
@@ -282,11 +289,14 @@ bool isUnnormal(string source) {
 		return source[1] == '0';
 }
 
+// Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
 	int dotPosition = source.find_first_of('.');
 	return source.substr(dotPosition + 1);
 }
 
+// Lấy phần trước dấu "." của chuỗi dưới dạng thập phân
+// Nếu chuỗi biểu diễn số âm thì không lấy dấu "-"
 string getDecSigni(string source) {
 	int dotPostion = source.find_first_of('.');
 	if (isNegative(source))
@@ -295,6 +305,7 @@ string getDecSigni(string source) {
 		return source.substr(0, dotPostion);
 }
 
+// Chuyển phần sau dấu "." thành một chuỗi nhị phân
 string getBinFraction(string decFraction) {
 	string result = "";
 	string sourceString = decFraction;
@@ -315,6 +326,7 @@ string getBinFraction(string decFraction) {
 	return result;
 }
 
+// Chuyển phần trước dấu "." thành chuỗi nhị phân
 string getBinSigni(string decSigni) {
 	QInt signi;
 	signi.ScanQInt(decSigni, 10);
@@ -326,6 +338,7 @@ string getBinSigni(string decSigni) {
 	return result;
 }
 
+// Set bit dấu, nếu âm thì set bit dấu thành 1, ngược lại thành 0
 void Qfloat::setSignBit(string source) {
 	if (source[0] == '-')
 		this->setBitQNum(BIT_LENGTH - 1, 1);
@@ -333,6 +346,7 @@ void Qfloat::setSignBit(string source) {
 		this->setBitQNum(BIT_LENGTH - 1, 0);
 }
 
+// Set các bit của phần mũ
 void Qfloat::setExpBits(string source) {
 	if (isUnnormal(source)) {
 		for (int i = NUM_BIT_SIGNI; i < NUM_BIT_EXP + NUM_BIT_SIGNI; i++)
@@ -347,7 +361,7 @@ void Qfloat::setExpBits(string source) {
 		QInt x(biasExp);
 		vector<bool> exp = x.convertToBin();
 		int length = exp.size();
-		//int lengthDifference = NUM_BIT_EXP - exp.size();
+		
 		for (int i = 0; i < NUM_BIT_EXP; i++) {
 			if (i > length)
 				this->setBitQNum(i + NUM_BIT_SIGNI, 0);
@@ -358,6 +372,7 @@ void Qfloat::setExpBits(string source) {
 	}
 }
 
+// Set các bit phần trị
 void Qfloat::setSignificantBits(string source) {
 	if (isUnnormal(source)) {
 		string decFraction = getDecFraction(source);
@@ -386,6 +401,7 @@ void Qfloat::setSignificantBits(string source) {
 	}
 }
 
+// Hàm scan tổng quát, bao gồm các thao tác set bit cho từng phần
 void Qfloat::scanDecString(string source) {
 	this->setSignBit(source);
 	this->setExpBits(source);
