@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1522224802 source:c:\users\administrator\documents\github\ktmt-hn-qint\testqint\main.cpp
+	<iostream>
+	<stdlib.h>
+	<time.h>
+	<string>
+	<sstream>
+	<stdio.h>
+
