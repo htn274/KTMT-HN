@@ -2,21 +2,16 @@
 #include "CaculateQInt.h"
 #include "Qfloat.h"
 #include <iostream>
-
+#include "BoolVector.h"
 using namespace std;
 
 int main() {
-	Qfloat a, b,c;
-	a.ScanQfloat("1.3", 10);
-	b.ScanQfloat("14.5", 10);
-	string ad = a.ToDec();
-	cout << ad << endl;
-	string bd = b.ToDec();
-	cout << bd << endl;
 	
-	c = a*b;
-	
-	string cd = c.ToDec();
-	cout << cd << endl;
+	Qfloat a, b, c;
+	a.scanDecString("123453453.34");
+	b.scanDecString("833.32");
+	c = a / b;
+	string decc = c.ToDec();
+	cout << decc << endl;
 	return 0;
 }
