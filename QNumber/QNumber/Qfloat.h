@@ -25,6 +25,10 @@ private:
 	QInt convertToQInt(vector<bool> x1, int sign);
 	//Kiểm tra bằng 0 
 	bool isZero(vector<bool> a) const;
+	// Kiểm tra số vô cực
+	bool isInf();
+	// Kiểm tra số báo lỗi
+	bool isNaN();
 	//Chuẩn hóa phần trị 
 	int normalizeSignificant(vector<bool> &a);
 	//Chuyển số mũ sang bias

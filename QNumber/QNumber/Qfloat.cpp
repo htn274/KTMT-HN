@@ -209,6 +209,33 @@ bool Qfloat::isZero(vector<bool> a) const
 	return true;
 }
 
+bool Qfloat::isInf() {
+	for (int i = 0; i < NUM_BIT_EXP; i++)
+		if (this->getBitQNum(i + NUM_BIT_SIGNI) == 0)
+			return false;
+
+	for (int i = 0; i < NUM_BIT_SIGNI; i++)
+		if (this->getBitQNum(i) == 1)
+			return false;
+
+	return true;
+}
+
+bool Qfloat::isNaN() {
+	for (int i = 0; i < NUM_BIT_EXP; i++)
+		if (this->getBitQNum(i + NUM_BIT_SIGNI) == 0)
+			return false;
+
+	bool flag = false;
+	for (int i = 0; i < NUM_BIT_SIGNI;i++)
+		if (this->getBitQNum(i) == 1) {
+			flag = true;
+			break;
+		}
+
+	return flag;
+}
+
 int Qfloat::normalizeSignificant( vector<bool> &a)
 {
 	while (a.size() > NUM_BIT_SIGNI + 2) a.erase(a.begin());
@@ -294,8 +321,12 @@ bool isNegative(string source) {
 	return source[0] == '-';
 }
 
+// Kiểm tra trị tuyệt đối của source có nhỏ hơn 1 không
 bool isLowerThan1(string source) {
-	return source[0] == '0';
+	if (isNegative(source))
+		return source[1] == '0';
+	else
+		return source[0] == '0';
 }
 
 // Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
@@ -422,9 +453,15 @@ void Qfloat::setSignificantBits(string source) {
 
 // Hàm scan tổng quát, bao gồm các thao tác set bit cho từng phần
 void Qfloat::scanDecString(string source) {
-	this->setSignBit(source);
-	this->setExpBits(source);
-	this->setSignificantBits(source);
+	if (source == "0") {
+		for (int i = 0; i < BIT_LENGTH; i++)
+			this->setBitQNum(i, 0);
+	}
+	else {
+		this->setSignBit(source);
+		this->setExpBits(source);
+		this->setSignificantBits(source);
+	}
 }
 Qfloat Qfloat::operator * (const Qfloat &a)
 {
@@ -470,6 +507,13 @@ Qfloat Qfloat::operator * (const Qfloat &a)
 
 Qfloat Qfloat::operator / (const Qfloat &a)
 {
+	if (a.isEqualZero()) {
+		Qfloat result;
+		for (int i = 0; i < NUM_BIT_EXP; i++)
+			result.setBitQNum(i + NUM_BIT_SIGNI, 1);
+		result.setBitQNum(NUM_BIT_SIGNI - 1, 1);
+		return result;
+	}
 	vector<bool> value1(BIT_LENGTH, 0);
 	vector<bool> temp = (*this).getSignificantReverse();
 	value1.insert(value1.end(), temp.begin(),temp.end());
@@ -490,7 +534,6 @@ Qfloat Qfloat::operator / (const Qfloat &a)
 	int exp = exp1 - exp2;
 	vector<bool> rmd, q;
 	q = DivideBoolVector(value1, value2, rmd);
-	cout << q.size() << endl;
 	if (q.size() <= BIT_LENGTH)
 		exp--;
 
@@ -569,15 +612,19 @@ string FractionToDec(const vector<bool>& a)
 //Chuyển Qfloat về số thập phân tĩnh
 string Qfloat::ToDec() const
 {
-	vector<bool> integer, fraction;
-	string sign = ((*this).getSign() == 0) ? "" : "-";
-	(*this).Deformalize(integer, fraction);
-	Reverse(fraction);
+	if (this->isEqualZero())
+		return "0";
+	else {
+		vector<bool> integer, fraction;
+		string sign = ((*this).getSign() == 0) ? "" : "-";
+		(*this).Deformalize(integer, fraction);
+		Reverse(fraction);
 
-	QInt intege(integer);
-	string integerDec = intege.convertToDec();
-	string fractionDec = FractionToDec(fraction);
-	return sign + integerDec + "." + fractionDec;
+		QInt intege(integer);
+		string integerDec = intege.convertToDec();
+		string fractionDec = FractionToDec(fraction);
+		return sign + integerDec + "." + fractionDec;
+	}
 }
 
 void Qfloat::printBin() {
@@ -597,7 +644,11 @@ void Qfloat::printDec() {
 }
 
 void Qfloat::PrintQfloat(int base) {
-	if (base == 2)
+	if (this->isInf())
+		cout << "Infinitive" << endl;
+	else if (this->isNaN())
+		cout << "NaN" << endl;
+	else if (base == 2)
 		this->printBin();
 	else
 		this->printDec();
