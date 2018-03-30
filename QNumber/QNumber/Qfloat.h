@@ -26,20 +26,20 @@ private:
 	void setSignBit(string source);
 	void setExpBits(string source);
 	void setSignificantBits(string source);
+	void printBin();
+	void printDec();
 public:
 	Qfloat();
 	Qfloat(vector<bool>);
 
 	void ScanQfloat(string source, int base);
-	void PrintQfloat();
+	void PrintQfloat(int base);
 
 	//Input là một chuỗi dưới dạng cơ số 2, hàm có tác dụng chuyển chuỗi input thành Qfloat
 	void scanBinString(string source); 
 	//Input là một chuỗi dạng cơ số 10, hàm có tác dụng chuyển chuỗi input thành Qfloat
 	void scanDecString(string source);
 
-	bool * DecToBin(Qfloat x);
-	Qfloat BinToDec(bool *bit);
 	Qfloat& operator = (const Qfloat &a);
 	Qfloat operator + (const Qfloat &a);
 	Qfloat operator - (const Qfloat &a);
@@ -53,11 +53,7 @@ public:
 	bool getSign() const; // Trả về dấu của số thực
 	vector<bool> Qfloat::getSignificantReverse() const;
 
-	//Một số hàm chức năng 
-	//vector<bool> shiftSignificantRight(vector<bool> a, int x);
-	//vector<bool> shiftSignificantLeft(vector<bool> a, int x);
-	//vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
-	//QInt convertToQInt(vector<bool> x1, int sign);
+
 	// Đưa về dạng dấu chấm tĩnh, lưu phần nguyên và phần phân vào integer và decimal
 	void Deformalize(vector<bool>& integer, vector<bool>& decimal) const;
 	//Chuyển Qfloat về số thập phân tĩnh

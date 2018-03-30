@@ -13,12 +13,14 @@ Qfloat::Qfloat(vector<bool> a)
 		this->setBitQNum(MAX_N * NUM_OF_BIT - i - 1, a[i]);
 }
 
+// Hàm scan tổng quát với hai hệ cơ số là nhị phân và thập phân
 void Qfloat::ScanQfloat(string source, int base)
 {
 	if (base == 2) scanBinString(source);
 	else scanDecString(source);
 }
 
+// Đọc vào một chuỗi nhị phân và lưu giá trị
 void Qfloat::scanBinString(string source)
 {
 	for (int i = 0; i < source.length(); i++)
@@ -248,6 +250,8 @@ Qfloat Qfloat::inf(bool sign)
 }
 
 //ScanDec
+// Hàm có tác dụng nhân một giá trị thập phân kiểu chuỗi với 2
+// Kết quả trả về là giá trị thập phân kiểu chuỗi kí tự sau khi nhân với 2
 string multiplyString(string decString) {
 	int carry = 0;
 	int doubleDigit;
@@ -276,6 +280,7 @@ string multiplyString(string decString) {
 		return result;
 }
 
+// Kiểm trả xem giá trị mà chuỗi biểu diễn có phải là 0 hay không
 bool isZero(string decString) {
 	for (int i = 0; i < decString.length(); i++)
 		if (decString[i] != '0')
@@ -284,22 +289,20 @@ bool isZero(string decString) {
 	return true;
 }
 
+// Kiểm tra số âm
 bool isNegative(string source) {
 	return source[0] == '-';
 }
 
-bool isUnnormal(string source) {
-	if (!isNegative(source))
-		return source[0] == '0';
-	else
-		return source[1] == '0';
-}
 
+// Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
 	int dotPosition = source.find_first_of('.');
 	return source.substr(dotPosition + 1);
 }
 
+// Lấy phần trước dấu "." của chuỗi dưới dạng thập phân
+// Nếu chuỗi biểu diễn số âm thì không lấy dấu "-"
 string getDecSigni(string source) {
 	int dotPostion = source.find_first_of('.');
 	if (isNegative(source))
@@ -308,6 +311,7 @@ string getDecSigni(string source) {
 		return source.substr(0, dotPostion);
 }
 
+// Chuyển phần sau dấu "." thành một chuỗi nhị phân
 string getBinFraction(string decFraction) {
 	string result = "";
 	string sourceString = decFraction;
@@ -328,6 +332,7 @@ string getBinFraction(string decFraction) {
 	return result;
 }
 
+// Chuyển phần trước dấu "." thành chuỗi nhị phân
 string getBinSigni(string decSigni) {
 	QInt signi;
 	signi.ScanQInt(decSigni, 10);
@@ -339,19 +344,16 @@ string getBinSigni(string decSigni) {
 	return result;
 }
 
+// Set bit dấu, nếu âm thì set bit dấu thành 1, ngược lại thành 0
 void Qfloat::setSignBit(string source) {
 	if (source[0] == '-')
-		this->setBitQNum(0, 1);
+		this->setBitQNum(BIT_LENGTH - 1, 1);
 	else
-		this->setBitQNum(0, 0);
+		this->setBitQNum(BIT_LENGTH - 1, 0);
 }
 
+// Set các bit của phần mũ
 void Qfloat::setExpBits(string source) {
-	if (isUnnormal(source)) {
-		for (int i = 1; i < NUM_BIT_EXP + 1; i++)
-			this->setBitQNum(i, 0);
-	}
-	else {
 		string decInt = getDecSigni(source);
 		string binInt = getBinSigni(decInt);
 		int decExp = binInt.length() - 1;
@@ -359,25 +361,19 @@ void Qfloat::setExpBits(string source) {
 
 		QInt x(biasExp);
 		vector<bool> exp = x.convertToBin();
-		int lengthDifference = NUM_BIT_EXP - exp.size();
-		for (int i = 0; i < NUM_BIT_EXP;i++) {
-			if (i < lengthDifference)
-				this->setBitQNum(i + 1, 0);
-			else
-				this->setBitQNum(i + 1, exp[i - lengthDifference]);
+		int length = exp.size();
+		
+		for (int i = 0; i < NUM_BIT_EXP; i++) {
+			if (i >= length)
+				this->setBitQNum(i + NUM_BIT_SIGNI, 0);
+			else {
+				this->setBitQNum(i + NUM_BIT_SIGNI, exp[length - i - 1]);
+			}
 		}
-	}
 }
 
+// Set các bit phần trị
 void Qfloat::setSignificantBits(string source) {
-	if (isUnnormal(source)) {
-		string decFraction = getDecFraction(source);
-		string binFraction = getBinFraction(decFraction);
-		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
-			this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
-		}
-	}
-	else {
 		string decSignificant = getDecSigni(source);
 		string binSignificant = getBinSigni(decSignificant);
 		string decFraction = getDecFraction(source);
@@ -385,15 +381,15 @@ void Qfloat::setSignificantBits(string source) {
 		binFraction = binSignificant.substr(1) + binFraction;
 		binFraction = binFraction.substr(0, NUM_BIT_SIGNI);
 
-		for (int i = 0; i < NUM_BIT_SIGNI; i++) {
-			if (i >= binFraction.length())
-				this->setBitQNum(i + 1 + NUM_BIT_EXP, 0);
+		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
+			if (NUM_BIT_SIGNI - 1 - i >= binFraction.length())
+				this->setBitQNum(i, 0);
 			else
-				this->setBitQNum(i + 1 + NUM_BIT_EXP, binFraction[i] - '0');
+				this->setBitQNum(i, binFraction[NUM_BIT_SIGNI - 1 - i] - '0');
 		}
-	}
 }
 
+// Hàm scan tổng quát, bao gồm các thao tác set bit cho từng phần
 void Qfloat::scanDecString(string source) {
 	this->setSignBit(source);
 	this->setExpBits(source);
@@ -505,4 +501,28 @@ string Qfloat::ToDec() const
 	string integerDec = intege.convertToDec();
 	string fractionDec = FractionToDec(fraction);
 	return sign + integerDec + "." + fractionDec;
+}
+
+void Qfloat::printBin() {
+	for (int i = BIT_LENGTH - 1; i >= 0; i--)
+	{
+		cout << this->getBitQNum(i);
+		if (i == BIT_LENGTH - 1)
+			cout << " ";
+		if (i == BIT_LENGTH - 1 - 15)
+			cout << " ";
+	}
+}
+
+void Qfloat::printDec() {
+	string decValue = this->ToDec();
+	cout << decValue;
+}
+
+void Qfloat::PrintQfloat(int base) {
+	if (base == 2)
+		this->printBin();
+	else
+		this->printDec();
+
 }

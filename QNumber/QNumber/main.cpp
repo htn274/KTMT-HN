@@ -1,9 +1,12 @@
+#pragma once
 #include "CaculateQInt.h"
+#include "Qfloat.h"
 #include <iostream>
 #include "Qfloat.h"
 using namespace std;
 
 int main() {
+
 	Qfloat x,z,a,b,p;
 	x.scanDecString("12.2354");
 	for (int i = 0; i < BIT_LENGTH; i++)
@@ -25,5 +28,6 @@ int main() {
 	p.printTest();
 	string decp = p.ToDec();
 	cout << decp << endl;
+
 	return 0;
 }
