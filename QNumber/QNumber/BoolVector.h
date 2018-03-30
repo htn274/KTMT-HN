@@ -1,3 +1,4 @@
+// Lớp các hàm xử lý số nguyên lớn không dấu, lưu bằng vector<bool> là dãy bit trong biểu diễn nhị phân
 #include <vector>
 
 using namespace std;
