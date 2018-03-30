@@ -503,6 +503,9 @@ string FractionToDec(const vector<bool>& a)
 	vector<bool> base(4);
 	base[1] = base[3] = 1;
 
+	if (IsZero(t))
+		return "0";
+
 	string result = "";
 	char digit;
 	int power2;
