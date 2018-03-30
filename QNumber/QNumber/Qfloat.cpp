@@ -627,6 +627,14 @@ string Qfloat::ToDec() const
 	}
 }
 
+vector<bool> Qfloat::ToBin() const {
+	vector<bool> result;
+	for (int i = BIT_LENGTH - 1; i >= 0; i--)
+		result.push_back(this->getBitQNum(i));
+
+	return result;
+}
+
 void Qfloat::printBin() {
 	for (int i = BIT_LENGTH - 1; i >= 0; i--)
 	{
