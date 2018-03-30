@@ -1,35 +1,29 @@
 #include "CaculateQInt.h"
 #include <iostream>
-
+#include "Qfloat.h"
 using namespace std;
 
-
 int main() {
-
-	/*Qfloat x, y, z;
-	x.ScanQfloat("100000000000000010101100", 2);
-	y.ScanQfloat("000000000000000011101011", 2);
-	vector<bool> signi = x.getSignificant();
-	for (int i = 0; i < signi.size(); i++)
-		cout << signi[i];
-	cout << endl;
-	QInt signi_Qint = x.convertToQInt(signi, x.getSign());
-	signi_Qint.printTest();
+	Qfloat x,z,a,b,p;
+	x.scanDecString("12.2354");
+	for (int i = 0; i < BIT_LENGTH; i++)
+		z.setBitQNum(i, x.getBitQNum(BIT_LENGTH - 1 - i));
 	
-	bool sign = x.getSign();
-	vector<bool> signi2 = signi_Qint.toSignedNumber(sign);
-	//cout << sign;
-	for (int i = 0; i < signi2.size(); i++)
-		cout << signi2[i];
-	cout << endl;*/
+	cout << z.getExpValue() << endl;
+	z.printTest();
+	string dec = z.ToDec();
+	cout << dec << endl;
+	
+	a.scanDecString("32.1");
+	for (int i = 0; i < BIT_LENGTH; i++)
+		b.setBitQNum(i, a.getBitQNum(BIT_LENGTH - 1 - i));
+	
+	cout << b.getExpValue() << endl;
+	b.printTest();
 
- //Test chương trình QInt
-	mainCaculate("INPUT.TXT", "OUTPUT.TXT");
-// Test chương trình Qfloat
-	Qfloat x;
-	string a = "-0.0000000000000000000000000001";
-	x.scanDecString(a);
-	x.printTest();
-
+	p = z*b;
+	p.printTest();
+	string decp = p.ToDec();
+	cout << decp << endl;
 	return 0;
 }

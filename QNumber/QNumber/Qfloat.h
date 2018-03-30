@@ -7,7 +7,7 @@ using namespace std;
 #define NUM_BIT_EXP		15
 #define NUM_BIT_SIGNI	112
 #define BIT_SIGN		127
-#define MAX_EXP			(1 << (NUM_BIT_EXP - 1)) - 1
+#define MAX_EXP			((1 << (NUM_BIT_EXP - 1)) - 1)
 #define MIN_EXP			- (1 << (NUM_BIT_EXP - 1)) + 2
 #define BIAS			16383
 
@@ -51,12 +51,13 @@ public:
 	// Lấy các bit phần trị (bit bậc nhỏ có chỉ số nhỏ, bit bậc lớn chỉ số lớn)
 	vector<bool> getSignificant() const; 
 	bool getSign() const; // Trả về dấu của số thực
+	vector<bool> Qfloat::getSignificantReverse() const;
 
 	//Một số hàm chức năng 
-	vector<bool> shiftSignificantRight(vector<bool> a, int x);
-	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
-	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
-	QInt convertToQInt(vector<bool> x1, int sign);
+	//vector<bool> shiftSignificantRight(vector<bool> a, int x);
+	//vector<bool> shiftSignificantLeft(vector<bool> a, int x);
+	//vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
+	//QInt convertToQInt(vector<bool> x1, int sign);
 	// Đưa về dạng dấu chấm tĩnh, lưu phần nguyên và phần phân vào integer và decimal
 	void Deformalize(vector<bool>& integer, vector<bool>& decimal) const;
 	//Chuyển Qfloat về số thập phân tĩnh

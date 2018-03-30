@@ -475,6 +475,10 @@ string QInt::convertToHex() {
 
 string QInt::convertToDec() const
 {
+	if ((*this).IsZero()) {
+		string result = "0";
+		return result;
+	}
 	string result = "";
 	QInt temp;
 	if ((*this).IsNegative())
