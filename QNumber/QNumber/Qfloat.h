@@ -79,6 +79,6 @@ public:
 	void Deformalize(vector<bool>& integer, vector<bool>& decimal) const;
 	//Chuyển Qfloat về số thập phân tĩnh
 	string ToDec() const;
-
+	vector<bool> ToBin() const;
 };
 
