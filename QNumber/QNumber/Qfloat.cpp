@@ -434,11 +434,14 @@ Qfloat Qfloat::operator * (const Qfloat &a)
 	Qfloat result;
 
 	//Gán dấu
-	result.setBitQNum(BIT_SIGN, !(sign1^sign2));
+	result.setBitQNum(BIT_SIGN, sign1^sign2);
 	
 	int exp = exp1 + exp2;
+	vector<bool> p = MultiplyBoolVector(value1, value2);
+	if (p.size() >= value1.size() + value2.size())
+		exp++;
+	
 	exp += ((1 << (NUM_BIT_EXP - 1)) - 1);//cộng số bias
-	cout << exp << " " << 1 << NUM_BIT_EXP<< endl;
 	if (exp < 0 || exp >= (1 << NUM_BIT_EXP)) {//tràn số
 		//Gán bằng số infinity
 		for (int i = 0; i < NUM_BIT_EXP; i++)
@@ -450,12 +453,8 @@ Qfloat Qfloat::operator * (const Qfloat &a)
 	else {
 		for (int i = 0; i < NUM_BIT_EXP; i++)
 			result.setBitQNum(i + NUM_BIT_SIGNI, getBit(exp, i));
-
-		vector<bool> p = MultiplyBoolVector(value1, value2);
-		
-		PrintVector(p);
 		int index = p.size() - 2;
-		for (int i = NUM_BIT_SIGNI -1; i >=0; i--)
+		for (int i = NUM_BIT_SIGNI - 1; i >=0; i--)
 			result.setBitQNum(i , p[index--]);
 	}
 

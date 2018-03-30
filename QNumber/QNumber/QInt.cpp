@@ -529,6 +529,8 @@ string QInt::convertToDec() const
 			rmd.getBitQNum(2) * 4 + rmd.getBitQNum(3) * 8 +'0';
 		result = digit + result;
 	}
+	if ((*this).IsNegative())
+		result = "-" + result;
 	return result;
 }
 //********************************************************
