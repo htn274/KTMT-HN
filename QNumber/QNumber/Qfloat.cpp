@@ -301,17 +301,28 @@ bool isLowerThan1(string source) {
 // Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
 	int dotPosition = source.find_first_of('.');
-	return source.substr(dotPosition + 1);
+	if (dotPosition == -1)
+		return "0";
+	else
+		return source.substr(dotPosition + 1);
 }
 
 // Lấy phần trước dấu "." của chuỗi dưới dạng thập phân
 // Nếu chuỗi biểu diễn số âm thì không lấy dấu "-"
 string getDecSigni(string source) {
 	int dotPostion = source.find_first_of('.');
-	if (isNegative(source))
-		return source.substr(1, dotPostion - 1);
-	else
-		return source.substr(0, dotPostion);
+	if (dotPostion == -1) {
+		if (isNegative(source))
+			return source.substr(1);
+		else
+			return source.substr(0);
+	}
+	else {
+		if (isNegative(source))
+			return source.substr(1, dotPostion - 1);
+		else
+			return source.substr(0, dotPostion);
+	}
 }
 
 // Chuyển phần sau dấu "." thành một chuỗi nhị phân
