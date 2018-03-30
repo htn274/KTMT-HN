@@ -281,13 +281,6 @@ bool isNegative(string source) {
 	return source[0] == '-';
 }
 
-// Kiểm tra số có phải dạng chuẩn hóa hay không
-bool isUnnormal(string source) {
-	if (!isNegative(source))
-		return source[0] == '0';
-	else
-		return source[1] == '0';
-}
 
 // Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
@@ -348,11 +341,6 @@ void Qfloat::setSignBit(string source) {
 
 // Set các bit của phần mũ
 void Qfloat::setExpBits(string source) {
-	if (isUnnormal(source)) {
-		for (int i = NUM_BIT_SIGNI; i < NUM_BIT_EXP + NUM_BIT_SIGNI; i++)
-			this->setBitQNum(i, 0);
-	}
-	else {
 		string decInt = getDecSigni(source);
 		string binInt = getBinSigni(decInt);
 		int decExp = binInt.length() - 1;
@@ -363,28 +351,16 @@ void Qfloat::setExpBits(string source) {
 		int length = exp.size();
 		
 		for (int i = 0; i < NUM_BIT_EXP; i++) {
-			if (i > length)
+			if (i >= length)
 				this->setBitQNum(i + NUM_BIT_SIGNI, 0);
 			else {
 				this->setBitQNum(i + NUM_BIT_SIGNI, exp[length - i - 1]);
 			}
 		}
-	}
 }
 
 // Set các bit phần trị
 void Qfloat::setSignificantBits(string source) {
-	if (isUnnormal(source)) {
-		string decFraction = getDecFraction(source);
-		string binFraction = getBinFraction(decFraction);
-		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
-			if (NUM_BIT_SIGNI - 1 - i >= binFraction.length())
-				this->setBitQNum(i, 0);
-			else
-				this->setBitQNum(i, binFraction[NUM_BIT_SIGNI - 1 - i] - '0');
-		}
-	}
-	else {
 		string decSignificant = getDecSigni(source);
 		string binSignificant = getBinSigni(decSignificant);
 		string decFraction = getDecFraction(source);
@@ -393,12 +369,11 @@ void Qfloat::setSignificantBits(string source) {
 		binFraction = binFraction.substr(0, NUM_BIT_SIGNI);
 
 		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
-			if (NUM_BIT_SIGNI - 1 - i > binFraction.length())
+			if (NUM_BIT_SIGNI - 1 - i >= binFraction.length())
 				this->setBitQNum(i, 0);
 			else
 				this->setBitQNum(i, binFraction[NUM_BIT_SIGNI - 1 - i] - '0');
 		}
-	}
 }
 
 // Hàm scan tổng quát, bao gồm các thao tác set bit cho từng phần
