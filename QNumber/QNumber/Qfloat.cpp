@@ -294,6 +294,9 @@ bool isNegative(string source) {
 	return source[0] == '-';
 }
 
+bool isLowerThan1(string source) {
+	return source[0] == '0';
+}
 
 // Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
@@ -354,33 +357,50 @@ void Qfloat::setSignBit(string source) {
 
 // Set các bit của phần mũ
 void Qfloat::setExpBits(string source) {
+	int biasExp;
+	if (isLowerThan1(source)) {
+		string decFraction = getDecFraction(source);
+		string binFraction = getBinFraction(decFraction);
+		int decExp = binFraction.find_first_of("1") + 1;
+		biasExp = BIAS - decExp;
+	}
+	else {
 		string decInt = getDecSigni(source);
 		string binInt = getBinSigni(decInt);
 		int decExp = binInt.length() - 1;
-		int biasExp = decExp + BIAS;
-
-		QInt x(biasExp);
-		vector<bool> exp = x.convertToBin();
-		int length = exp.size();
+		biasExp = decExp + BIAS;
+	}
 		
-		for (int i = 0; i < NUM_BIT_EXP; i++) {
-			if (i >= length)
-				this->setBitQNum(i + NUM_BIT_SIGNI, 0);
-			else {
-				this->setBitQNum(i + NUM_BIT_SIGNI, exp[length - i - 1]);
-			}
+	QInt x(biasExp);
+	vector<bool> exp = x.convertToBin();
+	int length = exp.size();
+
+	for (int i = 0; i < NUM_BIT_EXP; i++) {
+		if (i >= length)
+			this->setBitQNum(i + NUM_BIT_SIGNI, 0);
+		else {
+			this->setBitQNum(i + NUM_BIT_SIGNI, exp[length - i - 1]);
 		}
+	}
 }
 
 // Set các bit phần trị
 void Qfloat::setSignificantBits(string source) {
+	string binFraction;
+
+	if (isLowerThan1(source)) {
+		string decFraction = getDecFraction(source);
+		binFraction = getBinFraction(decFraction);
+		binFraction = binFraction.substr(binFraction.find_first_of("1") + 1);
+	}
+	else {
 		string decSignificant = getDecSigni(source);
 		string binSignificant = getBinSigni(decSignificant);
 		string decFraction = getDecFraction(source);
-		string binFraction = getBinFraction(decFraction);
+		binFraction = getBinFraction(decFraction);
 		binFraction = binSignificant.substr(1) + binFraction;
 		binFraction = binFraction.substr(0, NUM_BIT_SIGNI);
-
+	}
 		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--) {
 			if (NUM_BIT_SIGNI - 1 - i >= binFraction.length())
 				this->setBitQNum(i, 0);

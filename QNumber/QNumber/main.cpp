@@ -7,6 +7,7 @@ using namespace std;
 
 int main() {
 
+
 	Qfloat x,z,a,b,p;
 	x.scanDecString("12.2354");
 	for (int i = 0; i < BIT_LENGTH; i++)
@@ -28,6 +29,10 @@ int main() {
 	p.printTest();
 	string decp = p.ToDec();
 	cout << decp << endl;
+
+	Qfloat x;
+	x.ScanQfloat("-23.40625", 10);
+	x.PrintQfloat(2);
 
 	return 0;
 }
