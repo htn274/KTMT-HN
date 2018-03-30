@@ -507,6 +507,10 @@ string QInt::convertToHex() {
 // Chuyển giá trị QInt sang chuỗi thập phân tương ứng
 string QInt::convertToDec() const
 {
+	if ((*this).IsZero()) {
+		string result = "0";
+		return result;
+	}
 	string result = "";
 	QInt temp;
 	if ((*this).IsNegative())

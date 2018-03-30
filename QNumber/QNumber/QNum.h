@@ -13,7 +13,7 @@ public:
 	//Khởi tạo tại arr[index] = data
 	void Init(int index, int data);
 	//In ra màn hình từng bit để test
-	void printTest();
+	void printTest() const;
 	//Lấy bit thứ index trong QNum
 	bool getBitQNum(int index) const;
 	//Gán bit thứ index trong QNum có giá trị bit

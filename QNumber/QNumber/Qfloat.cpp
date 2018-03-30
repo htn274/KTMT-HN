@@ -1,5 +1,6 @@
 ﻿#include "Qfloat.h"
 #include "BitMani.h"
+#include "BoolVector.h"
 
 Qfloat::Qfloat()
 {
@@ -36,15 +37,20 @@ bool Qfloat::isEqualZero() const//Kiểm tra xem số đó bằng 0
 int Qfloat::getExpValue() const
 {
 
-	int value = - MAX_EXP; // Khởi tạo -2^14-1
+	//int value = - MAX_EXP; // Khởi tạo -2^14-1
 
+	//for (int i = 0; i < NUM_BIT_EXP; i++)
+	//	if (this->getBitQNum(112 + i) == 1) {
+	//		int tmp = 1 << i;
+	//		value += tmp;
+	//	}
+
+	//if (value == -MAX_EXP) return 0;
+	//return value;
+	int value = -((1 << (NUM_BIT_EXP - 1)) - 1); // Khởi tạo -(2^14-1)
 	for (int i = 0; i < NUM_BIT_EXP; i++)
-		if (this->getBitQNum(112 + i) == 1) {
-			int tmp = 1 << i;
-			value += tmp;
-		}
-
-	if (value == -MAX_EXP) return 0;
+		if (this->getBitQNum(MAX_N * NUM_OF_BIT - NUM_BIT_EXP - 1 + i) == 1)
+			value += 1 << (i);
 	return value;
 }
 
@@ -56,7 +62,14 @@ vector<bool> Qfloat::getSignificant() const
 	}
 	return x;
 }
-
+vector<bool> Qfloat::getSignificantReverse() const
+{
+	vector<bool> x;
+	for (int i = 0; i < NUM_BIT_SIGNI; i++) {
+		x.push_back(this->getBitQNum(i));
+	}
+	return x;
+}
 bool Qfloat::getSign() const
 {
 	return this->getBitQNum(MAX_N * NUM_OF_BIT - 1);
@@ -402,26 +415,27 @@ void Qfloat::scanDecString(string source) {
 	this->setExpBits(source);
 	this->setSignificantBits(source);
 }
-
-
-
 Qfloat Qfloat::operator * (const Qfloat &a)
 {
-	QInt value1 = VectorBoolToQInt((*this).getSignificant());
-	QInt value2 = VectorBoolToQInt(a.getSignificant());
+	vector<bool>value1 = (*this).getSignificantReverse();
+	value1.push_back(1);
+	vector<bool> value2 = a.getSignificantReverse();
+	value2.push_back(1);
 	int exp1 = (*this).getExpValue();
 	int exp2 = a.getExpValue();
+	
 	bool sign1 = (*this).getSign();
 	bool sign2 = a.getSign();
-
+	
 	Qfloat result;
 
 	//Gán dấu
 	result.setBitQNum(BIT_SIGN, !(sign1^sign2));
-
+	
 	int exp = exp1 + exp2;
 	exp += ((1 << (NUM_BIT_EXP - 1)) - 1);//cộng số bias
-	if (exp < 0 || exp >= (1 << NUM_BIT_SIGNI)) {//tràn số
+	cout << exp << " " << 1 << NUM_BIT_EXP<< endl;
+	if (exp < 0 || exp >= (1 << NUM_BIT_EXP)) {//tràn số
 		//Gán bằng số infinity
 		for (int i = 0; i < NUM_BIT_EXP; i++)
 			result.setBitQNum(i + NUM_BIT_SIGNI, 1);
@@ -433,26 +447,20 @@ Qfloat Qfloat::operator * (const Qfloat &a)
 		for (int i = 0; i < NUM_BIT_EXP; i++)
 			result.setBitQNum(i + NUM_BIT_SIGNI, getBit(exp, i));
 
-		QInt pvalue = value1*value2;
-		for (int i = NUM_BIT_SIGNI + 1; i <= 2 * NUM_BIT_SIGNI; i++)
-			result.setBitQNum(i-NUM_BIT_SIGNI-1, pvalue.getBitQNum(i));
+		vector<bool> p = MultiplyBoolVector(value1, value2);
+		
+		PrintVector(p);
+		int index = p.size() - 2;
+		for (int i = NUM_BIT_SIGNI -1; i >=0; i--)
+			result.setBitQNum(i , p[index--]);
 	}
-	
+
 	return result;
 }
 
 void Qfloat::Deformalize(vector<bool>& integer, vector<bool>& decimal) const
 {
 	int exp = (*this).getExpValue();
-	cout << exp << endl;
-	if (exp > 30) {
-		cout << "Number exceeds limit." << endl;
-		exp = 30;
-	}
-	else if (exp < -30){
-		cout << "Number exceeds limit." << endl;
-		exp = -30;
-	}
 	integer.clear();
 	decimal.clear();
 	vector<bool> signi = (*this).getSignificant();
@@ -475,28 +483,44 @@ void Qfloat::Deformalize(vector<bool>& integer, vector<bool>& decimal) const
 	}
 }
 
+
+string FractionToDec(const vector<bool>& a)
+{
+	vector<bool> t = a;
+	int length = a.size();
+	
+	//vector base = 10 = 1010(2)
+	vector<bool> base(4);
+	base[1] = base[3] = 1;
+
+	string result = "";
+	char digit;
+	int power2;
+	while (!IsZero(t)) {
+		t = MultiplyBoolVector(t, base);
+		digit = '0'; power2 = 1;
+		for (int i = length; i < t.size(); i++) {
+			digit += t[i] * power2;
+			power2 *= 2;
+		}
+		result = result + digit;
+		for (int i = t.size()-1; i >=length; i--)
+			t.pop_back();
+	}
+	return result;
+}
 //Chuyển Qfloat về số thập phân tĩnh
 string Qfloat::ToDec() const
 {
-	////Số signi lấy giá trị của phần trị số Qfloat
-	//QInt signi;
-	//for (int i = 0; i < NUM_BIT_SIGNI; i++) {
-	//	signi.setBitQNum(i, (*this).getBitQNum(i));
-	//}
+	vector<bool> integer, fraction;
+	string sign = ((*this).getSign() == 0) ? "" : "-";
+	(*this).Deformalize(integer, fraction);
+	Reverse(fraction);
 
-	//int exp = (*this).getExpValue();
-	////power2 là 2^exp
-	//QInt power2(1);
-	//if (exp>=0)
-	//	for (int i = 0; i < exp; i++)
-	//		power2 = power2 * 2;
-	vector<bool> integerStr, decimalStr;
-	(*this).Deformalize(integerStr, decimalStr);
-	QInt integer(integerStr);
-	QInt decimal(decimalStr);
-	string integerDec = integer.convertToDec();
-	string decimalDec = decimal.convertToDec();
-	return integerDec + "." + decimalDec;
+	QInt intege(integer);
+	string integerDec = intege.convertToDec();
+	string fractionDec = FractionToDec(fraction);
+	return sign + integerDec + "." + fractionDec;
 }
 
 void Qfloat::printBin() {

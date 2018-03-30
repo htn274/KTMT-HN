@@ -11,13 +11,14 @@ void QNum::Init(int index, int data)
 	this->arr[index] = data;
 }
 
-void QNum::printTest()
+void QNum::printTest() const
 {
 
-	for (int i = BIT_LENGTH - 1; i >= 0; i--)
-	{
-		printf("%d", this->getBitQNum(i));
-		if (i == BIT_LENGTH - 1)
+
+	for (int i = 0; i < MAX_N * NUM_OF_BIT;i++) {
+		printf("%d", this->getBitQNum(BIT_LENGTH - 1 - i));
+		if (i == 0)
+
 			printf(" ");
 		if (i == BIT_LENGTH - 1 - 15)
 			printf(" ");
