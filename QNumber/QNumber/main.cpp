@@ -3,7 +3,10 @@
 #include <iostream>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <conio.h>
+=======
+>>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
 =======
 >>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
 =======
@@ -14,11 +17,14 @@ using namespace std;
 int main() {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*Qfloat x,z,a,b,p;
 	x.scanDecString("12.2354");
 	for (int i = 0; i < BIT_LENGTH; i++)
 		z.setBitQNum(i, x.getBitQNum(BIT_LENGTH - 1 - i));
 =======
+=======
+>>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
 =======
 >>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
 	Qfloat a, b,c;
@@ -28,6 +34,7 @@ int main() {
 	cout << ad << endl;
 	string bd = b.ToDec();
 	cout << bd << endl;
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
 	
@@ -51,6 +58,13 @@ int main() {
 	//Test cho QFloat
 	mainCaculate("","", 1);
 =======
+	string cd = c.ToDec();
+	cout << cd << endl;
+>>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
+=======
+	
+	c = a*b;
+	
 	string cd = c.ToDec();
 	cout << cd << endl;
 >>>>>>> a26607844b121aa94bb651b165f6e8b52ec18476
