@@ -140,7 +140,7 @@ Qfloat Qfloat::operator-(const Qfloat & a)
 {
 	//Đổi dấu của a lại
 	Qfloat minus_a = a;
-	minus_a.toogleBitQNum(0);
+	minus_a.toogleBitQNum(BIT_LENGTH - 1);
 	return (*this) + minus_a;
 }
 
