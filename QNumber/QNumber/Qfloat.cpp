@@ -29,9 +29,9 @@ void Qfloat::scanBinString(string source)
 
 bool Qfloat::isEqualZero() const//Kiểm tra xem số đó bằng 0 
 {
-	int exp = this->getExpValue();
-	vector<bool> signi = this->getSignificant();
-	return (exp == 0 & isZero(signi));
+	for (int i = 0; i < BIT_LENGTH - 1; i++)
+		if (this->getBitQNum(i)) return false;
+	return true;
 }
 
 int Qfloat::getExpValue() const
@@ -50,7 +50,7 @@ int Qfloat::getExpValue() const
 	int value = -((1 << (NUM_BIT_EXP - 1)) - 1); // Khởi tạo -(2^14-1)
 	for (int i = 0; i < NUM_BIT_EXP; i++)
 		if (this->getBitQNum(MAX_N * NUM_OF_BIT - NUM_BIT_EXP - 1 + i) == 1)
-			value += 1 << (i);
+			value += (1 << (i));
 	return value;
 }
 

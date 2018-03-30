@@ -32,9 +32,11 @@ int main() {
 	cout << decp << endl;
 	*/
 	//Test cho QInt
-	mainCaculate("INPUT.TXT", "OUTPUT.TXT", 0);
 	//Test cho QFloat
 	mainCaculate("","", 1);
-	getch()
+	Qfloat x;
+	x.ScanQfloat("1", 10);
+	cout << x.isEqualZero();
+	getch();
 	return 0;
 }
