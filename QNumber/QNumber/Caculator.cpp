@@ -1,4 +1,4 @@
-#include "CaculateQInt.h"
+#include "Caculator.h"
 
 void mainCaculate(char*file_input, char* file_output)
 {
@@ -49,7 +49,7 @@ void process(vector<string> str_arr)
 			s3 = CaculateOpt(s1, s2, str_arr[2]);
 		}
 		s3.PrintQInt(p);
-	} 
+	}
 	else if (str_arr.size() == 3) {
 		int p1 = stoi(str_arr[0]);
 		QInt s, res;
@@ -66,10 +66,10 @@ void process(vector<string> str_arr)
 	cout << endl;
 }
 
-QInt CaculateOpt(QInt a, QInt b, string opt)
+QNum* CaculateOpt(QNum* a, QNum* b, string opt)
 {
 	switch (opt[0]) {
-	case '+': return a + b;
+	case '+': return (*a) + (*b);
 	case '-': return a - b;
 	case '*': return a * b;
 	case '/': return a / b;

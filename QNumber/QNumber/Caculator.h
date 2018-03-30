@@ -1,10 +1,9 @@
 #pragma once
+#include "QNum.h"
+#include "Qfloat.h"
 #include "QInt.h"
 
-using namespace std;
-
-#define SPACE	' '
 void mainCaculate(char* file_input, char* file_output);
 vector<string> cut_stringInput(string str_input);
 void process(vector<string> str_arr);
-QInt CaculateOpt(QInt a, QInt b, string opt);
+QInt CaculateOpt(QNum* a, QNum* b, string opt);

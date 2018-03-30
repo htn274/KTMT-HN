@@ -29,9 +29,9 @@ void Qfloat::scanBinString(string source)
 
 bool Qfloat::isEqualZero() const//Kiểm tra xem số đó bằng 0 
 {
-	int exp = this->getExpValue();
-	vector<bool> signi = this->getSignificant();
-	return (exp == 0 & isZero(signi));
+	for (int i = 0; i < BIT_LENGTH - 1; i++)
+		if (this->getBitQNum(i)) return false;
+	return true;
 }
 
 int Qfloat::getExpValue() const
@@ -50,7 +50,7 @@ int Qfloat::getExpValue() const
 	int value = -((1 << (NUM_BIT_EXP - 1)) - 1); // Khởi tạo -(2^14-1)
 	for (int i = 0; i < NUM_BIT_EXP; i++)
 		if (this->getBitQNum(MAX_N * NUM_OF_BIT - NUM_BIT_EXP - 1 + i) == 1)
-			value += 1 << (i);
+			value += (1 << (i));
 	return value;
 }
 
@@ -140,7 +140,7 @@ Qfloat Qfloat::operator-(const Qfloat & a)
 {
 	//Đổi dấu của a lại
 	Qfloat minus_a = a;
-	minus_a.toogleBitQNum(0);
+	minus_a.toogleBitQNum(BIT_LENGTH - 1);
 	return (*this) + minus_a;
 }
 
@@ -301,17 +301,28 @@ bool isLowerThan1(string source) {
 // Lấy phần sau dấu "." của chuỗi dưới dạng thập phân
 string getDecFraction(string source) {
 	int dotPosition = source.find_first_of('.');
-	return source.substr(dotPosition + 1);
+	if (dotPosition == -1)
+		return "0";
+	else
+		return source.substr(dotPosition + 1);
 }
 
 // Lấy phần trước dấu "." của chuỗi dưới dạng thập phân
 // Nếu chuỗi biểu diễn số âm thì không lấy dấu "-"
 string getDecSigni(string source) {
 	int dotPostion = source.find_first_of('.');
-	if (isNegative(source))
-		return source.substr(1, dotPostion - 1);
-	else
-		return source.substr(0, dotPostion);
+	if (dotPostion == -1) {
+		if (isNegative(source))
+			return source.substr(1);
+		else
+			return source.substr(0);
+	}
+	else {
+		if (isNegative(source))
+			return source.substr(1, dotPostion - 1);
+		else
+			return source.substr(0, dotPostion);
+	}
 }
 
 // Chuyển phần sau dấu "." thành một chuỗi nhị phân

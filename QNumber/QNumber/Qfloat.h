@@ -15,24 +15,37 @@ class Qfloat : public QNum{
 //Cấu trúc: 1 bit dấu, 15 bit exp, 112 bits significant
 private:
 	//Một số hàm chức năng 
+	//Dịch chuyển phần trị sang phải dấu chấm
 	vector<bool> shiftSignificantRight(vector<bool> a, int x);
+	//Dịch phần trị sang trái dấu chấm
 	vector<bool> shiftSignificantLeft(vector<bool> a, int x);
+	//Cộng phần trị 
 	vector<bool> addSignificant(vector<bool> x1, vector<bool> x2, bool sign1, bool sign2, bool &sign);
+	//Chuyển phần trị sang QInt
 	QInt convertToQInt(vector<bool> x1, int sign);
+	//Kiểm tra bằng 0 
 	bool isZero(vector<bool> a) const;
+	//Chuẩn hóa phần trị 
 	int normalizeSignificant(vector<bool> &a);
+	//Chuyển số mũ sang bias
 	vector<bool> toBias(int exp);
+	//Lấy số dạng vô cực
 	Qfloat inf(bool sign);
+
 	void setSignBit(string source);
 	void setExpBits(string source);
 	void setSignificantBits(string source);
+	//In Qfloat dưới hệ 2 
 	void printBin();
+	//In Qfloat dưới hệ 10 
 	void printDec();
 public:
 	Qfloat();
 	Qfloat(vector<bool>);
 
+	//Nhập một chuỗi dưới dạng 1 hệ cơ số bất kỳ vào Qfloat
 	void ScanQfloat(string source, int base);
+	// In Qfloat dưới 1 hệ cơ số bất kỳ 
 	void PrintQfloat(int base);
 
 	//Input là một chuỗi dưới dạng cơ số 2, hàm có tác dụng chuyển chuỗi input thành Qfloat
@@ -40,9 +53,13 @@ public:
 	//Input là một chuỗi dạng cơ số 10, hàm có tác dụng chuyển chuỗi input thành Qfloat
 	void scanDecString(string source);
 
+	//Phép toán gán 
 	Qfloat& operator = (const Qfloat &a);
+	//Phép cộng 
 	Qfloat operator + (const Qfloat &a);
+	//Phép trừ
 	Qfloat operator - (const Qfloat &a);
+	//Phép nhân
 	Qfloat operator * (const Qfloat &a);
 	Qfloat operator / (const Qfloat &a);
 
