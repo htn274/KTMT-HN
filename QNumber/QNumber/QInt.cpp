@@ -353,6 +353,7 @@ string standardizeBinString(string source) {
 // Scan functions 
 
 // Hàm scan một giá trị thập phân kiểu chuỗi và lưu vào đối tượng
+// Vì giới hạn biểu diễn của QInt là 2^127 - 1 nên chuỗi nhập vào không quá 38 kí tự
 void QInt::scanDec(string source) {
 	QInt result;
 	vector<bool> binaryArray = generateBinaryArrayFromRandomDecString(source);

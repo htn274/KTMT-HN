@@ -503,3 +503,27 @@ string Qfloat::ToDec() const
 	string decimalDec = decimal.convertToDec();
 	return integerDec + "." + decimalDec;
 }
+
+void Qfloat::printBin() {
+	for (int i = BIT_LENGTH - 1; i >= 0; i--)
+	{
+		cout << this->getBitQNum(i);
+		if (i == BIT_LENGTH - 1)
+			cout << " ";
+		if (i == BIT_LENGTH - 1 - 15)
+			cout << " ";
+	}
+}
+
+void Qfloat::printDec() {
+	string decValue = this->ToDec();
+	cout << decValue;
+}
+
+void Qfloat::PrintQfloat(int base) {
+	if (base == 2)
+		this->printBin();
+	else
+		this->printDec();
+
+}
