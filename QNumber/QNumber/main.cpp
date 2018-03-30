@@ -9,7 +9,7 @@ using namespace std;
 int main() {
 
 	Qfloat x;
-	x.ScanQfloat("0.8", 10);
+	x.ScanQfloat("-23.40625", 10);
 	x.PrintQfloat(2);
 	return 0;
 }
