@@ -465,6 +465,10 @@ void Qfloat::scanDecString(string source) {
 }
 Qfloat Qfloat::operator * (const Qfloat &a)
 {
+	if ((*this).isEqualZero() || a.isEqualZero()) {
+		Qfloat result;// result bằng 0
+		return result;
+	}
 	vector<bool>value1 = (*this).getSignificantReverse();
 	value1.push_back(1);
 	vector<bool> value2 = a.getSignificantReverse();
@@ -512,6 +516,10 @@ Qfloat Qfloat::operator / (const Qfloat &a)
 		for (int i = 0; i < NUM_BIT_EXP; i++)
 			result.setBitQNum(i + NUM_BIT_SIGNI, 1);
 		result.setBitQNum(NUM_BIT_SIGNI - 1, 1);
+		return result;
+	}
+	if (this->isEqualZero()) {
+		Qfloat result;
 		return result;
 	}
 	vector<bool> value1(BIT_LENGTH, 0);
@@ -653,9 +661,9 @@ void Qfloat::printDec() {
 
 void Qfloat::PrintQfloat(int base) {
 	if (this->isInf())
-		cout << "Infinitive" << endl;
+		cout << "Infinitive";
 	else if (this->isNaN())
-		cout << "NaN" << endl;
+		cout << "NaN";
 	else if (base == 2)
 		this->printBin();
 	else
