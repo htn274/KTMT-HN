@@ -468,6 +468,51 @@ Qfloat Qfloat::operator * (const Qfloat &a)
 	return result;
 }
 
+Qfloat Qfloat::operator / (const Qfloat &a)
+{
+	vector<bool> value1(BIT_LENGTH, 0);
+	vector<bool> temp = (*this).getSignificantReverse();
+	value1.insert(value1.end(), temp.begin(),temp.end());
+	value1.push_back(1);
+	vector<bool> value2 = a.getSignificantReverse();
+	value2.push_back(1);
+	int exp1 = (*this).getExpValue();
+	int exp2 = a.getExpValue();
+
+	bool sign1 = (*this).getSign();
+	bool sign2 = a.getSign();
+
+	Qfloat result;
+
+	//Gán dấu
+	result.setBitQNum(BIT_SIGN, sign1^sign2);
+
+	int exp = exp1 - exp2;
+	vector<bool> rmd, q;
+	q = DivideBoolVector(value1, value2, rmd);
+	cout << q.size() << endl;
+	if (q.size() <= BIT_LENGTH)
+		exp--;
+
+	exp += ((1 << (NUM_BIT_EXP - 1)) - 1);//cộng số bias
+	if (exp < 0 || exp >= (1 << NUM_BIT_EXP)) {//tràn số
+		//Gán bằng số infinity
+		for (int i = 0; i < NUM_BIT_EXP; i++)
+			result.setBitQNum(i + NUM_BIT_SIGNI, 1);
+
+		for (int i = 0; i < NUM_BIT_SIGNI; i++)
+			result.setBitQNum(i, 0);
+	}
+	else {
+		for (int i = 0; i < NUM_BIT_EXP; i++)
+			result.setBitQNum(i + NUM_BIT_SIGNI, getBit(exp, i));
+		int index = q.size() - 2;
+		for (int i = NUM_BIT_SIGNI - 1; i >= 0; i--)
+			result.setBitQNum(i, q[index--]);
+	}
+
+	return result;
+}
 void Qfloat::Deformalize(vector<bool>& integer, vector<bool>& decimal) const
 {
 	int exp = (*this).getExpValue();
@@ -505,7 +550,6 @@ string FractionToDec(const vector<bool>& a)
 
 	if (IsZero(t))
 		return "0";
-
 	string result = "";
 	char digit;
 	int power2;

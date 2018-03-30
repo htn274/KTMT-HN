@@ -1,6 +1,7 @@
 #pragma once
 #include "Calculator.h"
 #include <iostream>
+
 #include <conio.h>
 
 using namespace std;
@@ -38,5 +39,6 @@ int main() {
 	x.ScanQfloat("1", 10);
 	cout << x.isEqualZero();
 	getch();
+
 	return 0;
 }

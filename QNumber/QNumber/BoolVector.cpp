@@ -41,6 +41,29 @@ vector<bool> AddBoolVector(const vector<bool>& a, const vector<bool>& b)
 		result.push_back(1);
 	return result;
 }
+bool SubtractBoolVector(const vector<bool>& a, const vector<bool>& b,vector<bool>& result)
+{
+	if (a.size() < b.size())
+		return false;
+	result.clear();
+	result.reserve(a.size());
+	int carry=0;
+	int subresult;
+	for (int i = 0; i < a.size(); i++) {
+		subresult = getBitVector(a, i) - carry - getBitVector(b, i);
+		if (subresult < 0) {
+			carry = 1;
+			subresult += 2;
+		}
+		else
+			carry = 0;
+		result.push_back(subresult);
+	}
+	if (carry > 0)
+		return false;
+	else
+		return true;
+}
 vector<bool> ShiftLeftLogicalVector(const vector<bool>& a, int index)
 {
 	if (index <= 0) return a;
@@ -62,6 +85,27 @@ vector<bool> MultiplyBoolVector(const vector<bool>& a, const vector<bool>& b)
 	return result;
 }
 
+vector<bool> DivideBoolVector(const vector<bool>& a, const vector<bool>& b, vector<bool>& rmd)
+{
+	vector<bool> divisor, dividend;
+	dividend = a;
+	divisor = b;
+
+	vector<bool> result(a.size() - b.size() + 1, 0), shift, remainder;
+	
+	for (int i = a.size() - b.size(); i >= 0; i--) {
+		shift = ShiftLeftLogicalVector(divisor, i);
+		if (SubtractBoolVector(dividend, shift, remainder)) {
+			dividend = remainder;
+			result[i] = 1;
+		}
+	}
+	rmd = dividend;
+	if (result[result.size()-1]==0)
+		result.pop_back();
+	return result;
+}
+	
 bool IsZero(const vector<bool>& a)
 {
 	for (bool digit : a)
