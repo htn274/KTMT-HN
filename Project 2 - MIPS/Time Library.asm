@@ -1,8 +1,7 @@
 	.data
-
+time:	.asciiz "05/04/2018"
 week_day: .space 3 
-# Nhan time chua chuoi TIME theo �inh dang DD/MM/YYYY
-time:	.asciiz "03/04/2018"
+
 
 	.text
 
@@ -16,13 +15,6 @@ main:
 	addi $a0, $v0, 0
 	addi $v0, $zero, 4
 	syscall
-	j end_main
-	
-
-	#Tim 2 Leap Year tiep theo
-	addi $a0, $s0, 0
-	jal next2LeapYear
-	
 	#exit
 
 	addi $v0,$zero,10
@@ -287,33 +279,11 @@ LeapYear:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	jal Year
-	addi $t0, $v0, 0  # Lay nam trong chuoi luu vao $t0
-	# Xet so du khi chia cho 400, neu nam chia het cho 400 thi la nam nhuan
-	addi $t1, $zero, 400 
-	div $t0, $t1
-	mfhi $t2     # So du
-	beq $t2, $zero, true
-	addi $t1, $zero, 100    # Kiem tra chia het cho 100
-	div $t0, $t1
-	mfhi $t2     # So du
-	beq $t2, $zero, false    # Neu chia het cho 100 thi tra ve false
-	addi $t1, $zero, 4
-	div $t0, $t1
-	mfhi $t2         # So du
-	beq $t2, $zero, true    # Neu chia het cho 4 va khong chia het cho 100 thi tra ve true
-	j false
-	true:
-		addi $v0, $zero, 1   # return true;
-		lw $a0, 0($sp)
-		lw $ra, 4($sp)
-		addi $sp, $sp, 8
-		jr $ra
-	false:
-		addi $v0, $zero, 0   # return false;
-		lw $a0, 0($sp)
-		lw $ra, 4($sp)
-		addi $sp, $sp, 8
-		jr $ra
+	addi $a0, $v0, 0  # Lay nam trong chuoi luu vao $a0
+	jal isLeapYear
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	jr $ra
 # Cho biet nam do thuoc the ki nao
 getCentury:
 	add $sp, $sp, -8
