@@ -1,29 +1,24 @@
 	.data
-time:	.asciiz "03/04/2018"
+		time:	.asciiz "03/04/2018"
 	.text
 
 	.globl main
 main:
-	la $s0,time
+
+	la $s0, time
 	
-	addi $a0,$s0,0
-	jal Day
-	addi $a0,$v0,0
-	addi $v0,$zero,1
-	syscall
-	
-	addi $a0,$s0,0
-	jal Month
-	addi $a0,$v0,0
-	addi $v0,$zero,1
-	syscall
-	
-	addi $a0,$s0,0
+	#In year
+	addi $a0, $s0, 0 
 	jal Year
-	addi $a0,$v0,0
-	addi $v0,$zero,1
+	addi $a0, $v0, 0
+	addi $v0, $zero, 1
 	syscall
 	
+	#Tim 2 Leap Year tiep theo
+	addi $a0, $s0, 0
+	jal next2LeapYear
+	
+	#exit
 	addi $v0,$zero,10
 	syscall
 	
@@ -217,3 +212,94 @@ end_year:
 	lw $ra,8($sp)
 	add $sp,$sp,12
 	jr $ra
+
+#Ham kiem tra nam nhuan
+#$v0 giu gia tri 1 la nam nhuan
+isLeapYear:
+	..text
+	#Luu du lieu
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	
+	#Kiem tra year % 400 == 0
+	lw $a0, 0($sp)
+	addi $t0, $zero, 400
+	rem $t1, $a0, $t0
+	beq	$t1, $zero, returnTrue
+
+	#Kiem tra chia het cho 4
+	lw $a0, 0($sp)
+	addi $t0, $zero, 4
+	rem $t1, $a0, $t0
+	bne $t1, $zero, returnFalse
+
+	#Kiem tra chia het cho 100
+	lw $a0, 0($sp)
+	addi $t0, $zero, 100
+	rem $t1, $a0, $t0
+	beq $t1, $zero, returnFalse
+
+returnTrue:
+	addi $v0, $zero, 1
+	j exitLeapYear
+returnFalse:
+	addi $v0, $zero, 0
+	
+exitLeapYear: 	
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	jr $ra
+
+#Xuat 2 nam nhuan lien ke
+#Tham so truyen vao la char* TIME
+next2LeapYear:
+	addi $sp, $sp, -16
+	sw $ra, 0($sp)
+	sw $a0,	4($sp) #dia chi chua chuoi TIME
+
+	#Lay year ra
+	lw $a0, 4($sp)
+	jal Year
+	addi $a0, $v0, 0
+	
+	addi $a1, $zero, 0 #bien dem so nam nhuan da tim duoc
+findLeapYear:
+	addi $a0, $a0, 1  #tang year len
+	
+	jal isLeapYear 		#Kiem tra nam nhuan
+	addi $t0, $v0, 0
+	
+	beq $t0, $0, findLeapYear 	#Neu khong phai, tim tiep
+	addi $a1, $a1, 1 		#Tang bien dem len 1 
+
+	addi $t0, $zero, 4		#Xac dinh vi tri cua ket qua de luu vao stack
+	sll $t1, $a1, 2
+	add $t0, $t0, $t1
+	
+	add $sp, $sp, $t0		#Luu ket qua
+	sw $a0, 0($sp)			
+	sub $sp, $sp, $t0
+
+	bne $a1, 2, findLeapYear
+
+exitNext2LeapYear:
+	lw $ra, 0($sp)
+	
+	lw $a0, 8($sp)		#In ket qua 1
+	addi $v0, $zero, 1
+	syscall
+
+	lw $a0, 12($sp)		#ket qua 2
+	addi $v0, $zero, 1
+	syscall
+
+	lw $a0, 4($sp) 	
+	
+	addi $sp, $sp, 16	
+	jr $ra
+	
+	
+	
+	
