@@ -1,22 +1,26 @@
-	.data
-time:	.asciiz "05/04/2018"
+.data
+time_1:	.asciiz "05/04/2018"
+.align 2
+time_2:	.asciiz "01/01/2020"
 week_day: .space 3 
-
-
 	.text
 
 	.globl main
 
 main:
-
-	la $s0,time
+	
+	la $s0, time_1
+	la $s1, time_2
+	
+	#Goi ham tinh khoang cach
 	addi $a0, $s0, 0
-	jal WeekDay
+	addi $a1, $s1, 0
+	jal distanceDate
 	addi $a0, $v0, 0
-	addi $v0, $zero, 4
+	addi $v0, $zero, 1
 	syscall
-	#exit
 
+	#exit
 	addi $v0,$zero,10
 	syscall
 
@@ -271,7 +275,7 @@ end_year:
 	add $sp,$sp,12
 	jr $ra
 
-
+#----------------------------------------------------
 # Kiem tra xem nam trong chuoi "DD/MM/YYYY" co phai la nam nhuan hay khong
 # Neu co tra ve 1, nguoc lai tra ve 0
 LeapYear:
@@ -284,6 +288,7 @@ LeapYear:
 	lw $ra, 4($sp)
 	lw $a0, 0($sp)
 	jr $ra
+#--------------------------------------------------
 # Cho biet nam do thuoc the ki nao
 getCentury:
 	add $sp, $sp, -8
@@ -300,7 +305,7 @@ getCentury:
 	lw $ra, 4($sp)
 	addi $sp, $sp, 8
 	jr $ra
-
+#------------------------------------------------
 # Lenh tao chuoi mang ten thu trong tuan
 getWeekDayString:
 	addi $sp, $sp, -8
@@ -449,6 +454,7 @@ notLeapYear:
 		lw $a0, 0($sp)
 		addi $sp, $sp, 8
 		jr $ra
+#--------------------------------------
 # Cho biet ngay do la thu may trong tuan
 WeekDay:
 	addi $sp, $sp, -8
@@ -483,6 +489,7 @@ WeekDay:
 	addi $sp, $sp,  8
 	jr $ra
 
+#-------------------------------------------
 #Ham kiem tra nam nhuan
 #$v0 giu gia tri 1 la nam nhuan
 isLeapYear:
@@ -522,6 +529,7 @@ exitLeapYear:
 	addi $sp, $sp, 8
 	jr $ra
 
+#--------------------------------------
 #Xuat 2 nam nhuan lien ke
 #Tham so truyen vao la char* TIME
 next2LeapYear:
@@ -571,3 +579,78 @@ exitNext2LeapYear:
 	jr $ra
 
 
+#-------------------------------------
+#Tinh khoang cach giua 2 chuoi TIME_1 va TIME_2
+#Input vao chuoi TIME_1 phai nho hon TIME_2
+#Don vi tinh: nam
+distanceDate:
+	addi $sp, $sp, -24
+	sw $ra, 0($sp)
+	sw $a0, 4($sp) 	#Luu chuoi TIME_1
+	sw $a1, 8($sp)	#Luu chuoi TIME_2
+	
+	#Lay Year cua TIME_1
+	lw $a0, 4($sp)
+	jal Year
+	sw $v0, 12($sp)
+	#Lay Year cua TIME_2
+	lw $a0, 8($sp)
+	jal Year
+	sw $v0, 16($sp)
+
+	lw $a0, 12($sp)		#Load year cua TIME_1
+	lw $a1, 16($sp)		#Load year cua TIME_2
+
+	sub $t0, $a1, $a0	#Tinh khoang cach nam
+	sw $t0, 20($sp)		
+	
+compareMonth:
+	#Lay thang cho TIME_1
+	lw $a0, 4($sp)
+	jal Month
+	sw $v0, 12($sp)
+	#Lay thang cho TIME_2
+	lw $a0, 8($sp)
+	jal Month
+	sw $v0, 16($sp)
+	
+	#Neu thang cua TIME_2 nho hon TIME_1 thi giam ket qua di 1 
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	beq $t2, $t1, compareDay 	#Neu thang bang nhau thi so sanh ngay
+	slt $t0, $t2, $t1  		#So sanh gia tri $t1 < $t0
+	beq $t0, 1, decrease
+	j exitDistanceDate
+	
+compareDay:
+	#Lay ngay cho TIME_1
+	lw $a0, 4($sp)
+	jal Day
+	sw $v0, 12($sp)
+	#Lay ngay cho TIME_2
+	lw $a0, 8($sp)
+	jal Day
+	sw $v0, 16($sp)
+	
+	#Neu ngay cua TIME_2 nho hon TIME_1 thi tru ket qua di 1
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	slt $t0, $t2, $t1
+	beq $t0, 0, exitDistanceDate 
+	
+#Giam ket qua xuong 1 
+decrease:
+	lw $v0, 20($sp)
+	addi $v0, $v0, -1
+	sw $v0, 20($sp) 
+	
+	
+exitDistanceDate:
+	lw $ra, 0($sp)
+	lw $a0, 4($sp)
+	lw $a1, 8($sp)
+	lw $v0, 20($sp)
+	addi $sp, $sp, 24
+	jr $ra
+
+	
