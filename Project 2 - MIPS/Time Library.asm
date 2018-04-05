@@ -10,21 +10,31 @@ year_promt:	.asciiz "\nNhap nam YEAR:"
 new_line:	.asciiz "\n"
 	.align 2
 	
-day:	.space 3
+day_str:	.space 3
 	.align 2
-month:	.space 3
+month_str:	.space 3
 	.align 2
-year:	.space 5
+year_str:	.space 5
 	.align 3
 week_day:	.space 3
 	.align 2
 	
+#------------------------------
+
+time:	  .asciiz "25/12/2018"
+month:             .space 4
+day:		   .space 2
+year:		   .space 4
+convertedDate:     .space 10
+
+#------------------------------
 #------------------------------
 	.text
 
 	.globl main
 
 main:
+
 	jal Input
 	
 	#exit
@@ -47,7 +57,7 @@ while_input_day:
 	
 	# Nhap ngay vao bien day
 	addi $a1,$zero,3
-	la $a0,day
+	la $a0,day_str
 	addi $v0, $zero, 8
 	syscall
 	
@@ -65,9 +75,19 @@ while_input_month:
 	
 	# Nhap thang vao bien month
 	addi $a1,$zero,3
-	la $a0,month
+	la $a0,month_str
 	addi $v0, $zero, 8
-	syscall
+	
+	#la $s0, time_1
+	#la $s1, time_2
+	
+	#addi $a0, $s0, 0
+	#addi $a1, $zero, 'C'
+	#jal Convert
+
+	#addi $a0, $v0, 0
+	#addi $v0, $zero, 1
+	#syscall
 	
 	# Kiem tra chuoi ngay co toan la chu so hay khong
 	addi $a1,$zero,2
@@ -83,7 +103,7 @@ while_input_year:
 	
 	# Nhap nam vao bien year
 	addi $a1,$zero,5
-	la $a0,year
+	la $a0,year_str
 	addi $v0, $zero, 8
 	syscall
 	
@@ -379,7 +399,7 @@ end_year:
 	add $sp,$sp,12
 	jr $ra
 
-
+#----------------------------------------------------
 # Kiem tra xem nam trong chuoi "DD/MM/YYYY" co phai la nam nhuan hay khong
 # Neu co tra ve 1, nguoc lai tra ve 0
 LeapYear:
@@ -387,33 +407,12 @@ LeapYear:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	jal Year
-	addi $t0, $v0, 0  # Lay nam trong chuoi luu vao $t0
-	# Xet so du khi chia cho 400, neu nam chia het cho 400 thi la nam nhuan
-	addi $t1, $zero, 400 
-	div $t0, $t1
-	mfhi $t2     # So du
-	beq $t2, $zero, true
-	addi $t1, $zero, 100    # Kiem tra chia het cho 100
-	div $t0, $t1
-	mfhi $t2     # So du
-	beq $t2, $zero, false    # Neu chia het cho 100 thi tra ve false
-	addi $t1, $zero, 4
-	div $t0, $t1
-	mfhi $t2         # So du
-	beq $t2, $zero, true    # Neu chia het cho 4 va khong chia het cho 100 thi tra ve true
-	j false
-	true:
-		addi $v0, $zero, 1   # return true;
-		lw $a0, 0($sp)
-		lw $ra, 4($sp)
-		addi $sp, $sp, 8
-		jr $ra
-	false:
-		addi $v0, $zero, 0   # return false;
-		lw $a0, 0($sp)
-		lw $ra, 4($sp)
-		addi $sp, $sp, 8
-		jr $ra
+	addi $a0, $v0, 0  # Lay nam trong chuoi luu vao $a0
+	jal isLeapYear
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	jr $ra
+#--------------------------------------------------
 # Cho biet nam do thuoc the ki nao
 getCentury:
 	add $sp, $sp, -8
@@ -430,7 +429,7 @@ getCentury:
 	lw $ra, 4($sp)
 	addi $sp, $sp, 8
 	jr $ra
-
+#------------------------------------------------
 # Lenh tao chuoi mang ten thu trong tuan
 getWeekDayString:
 	addi $sp, $sp, -8
@@ -579,6 +578,7 @@ notLeapYear:
 		lw $a0, 0($sp)
 		addi $sp, $sp, 8
 		jr $ra
+#--------------------------------------
 # Cho biet ngay do la thu may trong tuan
 WeekDay:
 	addi $sp, $sp, -8
@@ -613,6 +613,7 @@ WeekDay:
 	addi $sp, $sp,  8
 	jr $ra
 
+#-------------------------------------------
 #Ham kiem tra nam nhuan
 #$v0 giu gia tri 1 la nam nhuan
 isLeapYear:
@@ -652,6 +653,7 @@ exitLeapYear:
 	addi $sp, $sp, 8
 	jr $ra
 
+#--------------------------------------
 #Xuat 2 nam nhuan lien ke
 #Tham so truyen vao la char* TIME
 next2LeapYear:
@@ -700,4 +702,490 @@ exitNext2LeapYear:
 	addi $sp, $sp, 16	
 	jr $ra
 
+# Convert Day sang chuoi
+DayToString:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	
+	la $t4, day
+	addi $s0, $a0, 0
+	addi $t0, $zero, 10
+	div $s0, $t0
+	mfhi $t1             # So Hang Don Vi
+	mflo $t2             # So Hang Chuc
+	# Chuyen tung ki tu sang char roi luu vao chuoi
+	addi $t3, $t1, 48
+	sb $t3, 1($t4)
+	addi $t3, $t2, 48
+	sb $t3, 0($t4)
+	addi $v0, ,$t4, 0
+	# exit
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	jr $ra
+
+# Convert Month sang chuoi
+MonthToString:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	
+	addi $s0, $a0, 0
+	addi $t0, $a1, -65
+	beq $t0, $zero, numConvert
+	addi $t0, $a1, -66
+	beq $t0, $zero, nameConvert
+	addi $t0, $a1, -67
+	beq $t0, $zero, nameConvert
+numConvert:
+	la $t4, month
+	addi $s0, $a0, 0
+	addi $t0, $zero, 10
+	div $s0, $t0
+	mfhi $t1             # So Hang Don Vi
+	mflo $t2             # So Hang Chuc
+	# Chuyen tung ki tu sang char roi luu vao chuoi
+	addi $t3, $t1, 48
+	sb $t3, 1($t4)
+	addi $t3, $t2, 48
+	sb $t3, 0($t4)
+	addi $v0, ,$t4, 0
+	j exitMonthToString
+nameConvert:
+	addi $t0, $a0, -1
+	beq $t0, $zero, getJan
+	addi $t0, $a0, -2
+	beq $t0, $zero, getFeb
+	addi $t0, $a0, -3
+	beq $t0, $zero, getMar
+	addi $t0, $a0, -4
+	beq $t0, $zero, getApr
+	addi $t0, $a0, -5
+	beq $t0, $zero, getMay
+	addi $t0, $a0, -6
+	beq $t0, $zero, getJun
+	addi $t0, $a0, -7
+	beq $t0, $zero, getJul
+	addi $t0, $a0, -8
+	beq $t0, $zero, getAug
+	addi $t0, $a0, -9
+	beq $t0, $zero, getSep
+	addi $t0, $a0, -10
+	beq $t0, $zero, getOct
+	addi $t0, $a0, -11
+	beq $t0, $zero, getNov
+	addi $t0, $a0, -12
+	beq $t0, $zero, getDec
+getJan:
+	addi $a0, $zero, 'J'
+	addi $a1, $zero, 'a'
+	addi $a2, $zero, 'n'
+	jal getNameOfMonth
+	j exitMonthToString
+getFeb:
+	addi $a0, $zero, 'F'
+	addi $a1, $zero, 'e'
+	addi $a2, $zero, 'b'
+	jal getNameOfMonth
+	j exitMonthToString
+getMar:
+	addi $a0, $zero, 'M'
+	addi $a1, $zero, 'a'
+	addi $a2, $zero, 'r'
+	jal getNameOfMonth
+	j exitMonthToString
+getApr:
+	addi $a0, $zero, 'A'
+	addi $a1, $zero, 'p'
+	addi $a2, $zero, 'r'
+	jal getNameOfMonth
+	j exitMonthToString
+getMay:
+	addi $a0, $zero, 'M'
+	addi $a1, $zero, 'a'
+	addi $a2, $zero, 'y'
+	jal getNameOfMonth
+	j exitMonthToString
+getJun:
+	addi $a0, $zero, 'J'
+	addi $a1, $zero, 'u'
+	addi $a2, $zero, 'n'
+	jal getNameOfMonth
+	j exitMonthToString
+getJul:
+	addi $a0, $zero, 'J'
+	addi $a1, $zero, 'u'
+	addi $a2, $zero, 'l'
+	jal getNameOfMonth
+	j exitMonthToString
+getAug:
+	addi $a0, $zero, 'A'
+	addi $a1, $zero, 'u'
+	addi $a2, $zero, 'g'
+	jal getNameOfMonth
+	j exitMonthToString
+getSep:
+	addi $a0, $zero, 'S'
+	addi $a1, $zero, 'e'
+	addi $a2, $zero, 'p'
+	jal getNameOfMonth
+	j exitMonthToString
+getOct:
+	addi $a0, $zero, 'O'
+	addi $a1, $zero, 'c'
+	addi $a2, $zero, 't'
+	jal getNameOfMonth
+	j exitMonthToString
+getNov:
+	addi $a0, $zero, 'N'
+	addi $a1, $zero, 'o'
+	addi $a2, $zero, 'v'
+	jal getNameOfMonth
+	j exitMonthToString
+getDec:
+	addi $a0, $zero, 'D'
+	addi $a1, $zero, 'e'
+	addi $a2, $zero, 'c'
+	jal getNameOfMonth
+	j exitMonthToString
+exitMonthToString:
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	jr $ra
+
+# Convert Year sang chuoi
+YearToString:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	
+	addi $s0, $a0, 0
+	la $t4, year
+	addi $t2, $zero, 4
+Loop:
+	beq $s0, 0, exitYearToString
+	addi $t0, $zero, 10
+	div $s0, $t0
+	mfhi $t3
+	mflo $s0
+	addi $t3, $t3, 48
+	addi $t5, $t2, -4
+	beq $t5, $zero, add3
+	addi $t5, $t2, -3
+	beq $t5, $zero, add2
+	addi $t5, $t2, -2
+	beq $t5, $zero, add1
+	addi $t5, $t2, -1
+	beq $t5, $zero, add0
+add3:
+	sb $t3, 3($t4)
+	addi $t2, $t2, -1
+	j Loop
+add2:
+	sb $t3, 2($t4)
+	addi $t2, $t2, -1
+	j Loop
+add1:
+	sb $t3, 1($t4)
+	addi $t2, $t2, -1
+	j Loop
+add0:
+	sb $t3, 0($t4)
+	addi $t2, $t2, -1
+	j Loop
+exitYearToString:
+	addi $v0, $t4, 0
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	jr $ra
+
+# Tao chuoi ten thang
+getNameOfMonth:
+	addi $sp, $sp, -16
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	sw $a1, 8($sp)
+	sw $a2, 12($sp)
+	
+	la $t7, month
+	addi $t0, $a0, 0
+	sb $t0, 0($t7)
+	addi $t0, $a1, 0
+	sb $t0, 1($t7)
+	addi $t0, $a2, 0
+	sb $t0, 2($t7)
+	
+	addi $v0, $t7, 0
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	lw $a1, 8($sp)
+	lw $a2, 12($sp)
+	addi $sp, $sp, 16
+	jr $ra
+	
+# Convert chuoi ngay ra kieu A MM/DD/YYYY
+convertAType:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	
+	la $t7, convertedDate
+	jal Month
+	addi $a0, $v0, 0
+	addi $a1, $zero, 65
+	jal MonthToString
+	addi $t1, $v0, 0
+	lb $t2, 0($t1)
+	sb $t2, 0($t7)
+	lb $t2, 1($t1)
+	sb $t2, 1($t7)
+	addi $t2, $zero, 47
+	sb $t2, 2($t7)
+	lw $a0, 0($sp)
+	jal Day
+	addi $a0, $v0, 0
+	jal DayToString
+	addi $t1, $v0, 0
+	lb $t2, 0($t1)
+	sb $t2, 3($t7)
+	lb $t2, 1($t1)
+	sb $t2, 4($t7)
+	addi $t2, $zero, 47
+	sb $t2, 5($t7)
+	lw $a0, 0($sp)
+	jal Year
+	addi $a0, $v0, 0
+	jal YearToString
+	addi $t1, $v0, 0
+	lb $t2, 0($t1)
+	sb $t2, 6($t7)
+	lb $t2, 1($t1)
+	sb $t2, 7($t7)
+	lb $t2, 2($t1)
+	sb $t2, 8($t7)
+	lb $t2, 3($t1)
+	sb $t2, 9($t7)
+	# exit
+	addi $v0, $t7, 0
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	j exitMainConvert
+
+# Convert chuoi ngay ra kiem Month DD, YYYY
+convertBType:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	# Gan chuoi Month
+	la $t8, convertedDate
+	jal Month
+	addi $a0, $v0, 0
+	addi $a1, $zero, 66
+	jal MonthToString
+	addi $t0, $v0, 0    # Month String
+	lb $t1, 0($t0)
+	sb $t1, 0($t8)
+	lb $t1, 1($t0)
+	sb $t1, 1($t8)
+	lb $t1, 2($t0)
+	sb $t1, 2($t8)
+	addi $t1, $zero, 32
+	sb $t1, 3($t8)
+	# Gan chuoi Day
+	lw $a0, 0($sp)
+	jal Day
+	addi $a0, $v0, 0
+	jal DayToString
+	addi $t0, $v0, 0   # Day String
+	lb $t1, 0($t0)
+	sb $t1, 4($t8)
+	lb $t1, 1($t0)
+	sb $t1, 5($t8)
+	addi $t1, $zero, 44
+	sb $t1, 6($t8)
+	# Gan chuoi Year
+	lw $a0, 0($sp)
+	jal Year
+	addi $t5, $v0, 0
+	addi $t2, $zero, 10
+	addi $t3, $zero, 4
+setYear:
+	beq $t5, $zero, exitConvert
+	div  $t5, $t2
+	mfhi $t1
+	addi $t1, $t1, 48
+	addi $t4, $t3, -4
+	beq $t4, $zero, add10
+	addi $t4, $t3, -3
+	beq $t4, $zero, add9
+	addi $t4, $t3, -2
+	beq $t4, $zero, add8
+	addi $t4, $t3, -1
+	beq $t4, $zero, add7
+add10:
+	sb $t1, 10($t8)
+	mflo $t5
+	addi $t3, $t3, -1
+	j setYear
+add9:
+	sb $t1, 9($t8)
+	mflo $t5
+	addi $t3, $t3, -1
+	j setYear
+add8:
+	sb $t1, 8($t8)
+	mflo $t5
+	addi $t3, $t3, -1
+	j setYear
+add7:
+	sb $t1, 7($t8)
+	mflo $t5
+	addi $t3, $t3, -1
+	j setYear
+exitConvert:	
+	addi $v0, $t8, 0
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	addi $sp, $sp, 8
+	j exitMainConvert
+
+# Chuyen chuoi ngay thanh dang DD Month, YYYY
+convertCType:
+	addi $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	# Gan chuoi Day
+	la $t8, convertedDate
+	jal Day
+	addi $a0, $v0, 0
+	jal DayToString
+	addi $t0, $v0, 0   # Day String
+	lb $t1, 0($t0)
+	sb $t1, 0($t8)
+	lb $t1, 1($t0)
+	sb $t1, 1($t8)
+	addi $t1, $zero, 32
+	sb $t1, 2($t8)
+	# Gan chuoi Month 
+	lw $a0, 0($sp)
+	jal Month
+	addi $a0, $v0, 0
+	addi $a1, $zero, 66
+	jal MonthToString
+	addi $t2, $v0, 0    # Month String
+	lb $t1, 0($t2)
+	sb $t1, 3($t8)
+	lb $t1, 1($t2)
+	sb $t1, 4($t8)
+	lb $t1, 2($t2)
+	sb $t1, 5($t8)
+	addi $t1, $zero, 44
+	sb $t1, 6($t8)
+	# Gan chuoi Year
+	lw $a0, 0($sp)
+	jal Year
+	addi $t5, $v0, 0
+	addi $t2, $zero, 10
+	addi $t3, $zero, 4
+	j setYear  
+
+
+Convert:
+	addi $sp, $sp, -12
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	sw $a1, 8($sp)
+	
+	addi $t0, $a1, -65
+	beq $t0, $zero, convertAType
+	addi $t0, $a1, -66
+	beq $t0, $zero, convertBType
+	addi $t0, $a1, -67
+	beq $t0, $zero, convertCType
+	
+exitMainConvert:
+	lw $ra, 4($sp)
+	lw $a0, 0($sp)
+	lw $a1, 8($sp)
+	addi $sp, $sp, 12
+	jr $ra
+
+#-------------------------------------
+#Tinh khoang cach giua 2 chuoi TIME_1 va TIME_2
+#Input vao chuoi TIME_1 phai nho hon TIME_2
+#Don vi tinh: nam
+distanceDate:
+	addi $sp, $sp, -24
+	sw $ra, 0($sp)
+	sw $a0, 4($sp) 	#Luu chuoi TIME_1
+	sw $a1, 8($sp)	#Luu chuoi TIME_2
+	
+	#Lay Year cua TIME_1
+	lw $a0, 4($sp)
+	jal Year
+	sw $v0, 12($sp)
+	#Lay Year cua TIME_2
+	lw $a0, 8($sp)
+	jal Year
+	sw $v0, 16($sp)
+
+	lw $a0, 12($sp)		#Load year cua TIME_1
+	lw $a1, 16($sp)		#Load year cua TIME_2
+
+	sub $t0, $a1, $a0	#Tinh khoang cach nam
+	sw $t0, 20($sp)		
+	
+compareMonth:
+	#Lay thang cho TIME_1
+	lw $a0, 4($sp)
+	jal Month
+	sw $v0, 12($sp)
+	#Lay thang cho TIME_2
+	lw $a0, 8($sp)
+	jal Month
+	sw $v0, 16($sp)
+	
+	#Neu thang cua TIME_2 nho hon TIME_1 thi giam ket qua di 1 
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	beq $t2, $t1, compareDay 	#Neu thang bang nhau thi so sanh ngay
+	slt $t0, $t2, $t1  		#So sanh gia tri $t1 < $t0
+	beq $t0, 1, decrease
+	j exitDistanceDate
+	
+compareDay:
+	#Lay ngay cho TIME_1
+	lw $a0, 4($sp)
+	jal Day
+	sw $v0, 12($sp)
+	#Lay ngay cho TIME_2
+	lw $a0, 8($sp)
+	jal Day
+	sw $v0, 16($sp)
+	
+	#Neu ngay cua TIME_2 nho hon TIME_1 thi tru ket qua di 1
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	slt $t0, $t2, $t1
+	beq $t0, 0, exitDistanceDate 
+	
+#Giam ket qua xuong 1 
+decrease:
+	lw $v0, 20($sp)
+	addi $v0, $v0, -1
+	sw $v0, 20($sp) 
+	
+	
+exitDistanceDate:
+	lw $ra, 0($sp)
+	lw $a0, 4($sp)
+	lw $a1, 8($sp)
+	lw $v0, 20($sp)
+	addi $sp, $sp, 24
+	jr $ra
 
