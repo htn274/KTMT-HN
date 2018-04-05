@@ -1,35 +1,120 @@
+	.data
+time:	.asciiz "03/04/2018"
+	.align 4
+day_promt:	.asciiz "Nhap ngay DAY:"
+	.align 5
+month_promt:	.asciiz "\nNhap thang MONTH:"
+	.align 5
+year_promt:	.asciiz "\nNhap nam YEAR:"
+	.align 5
+new_line:	.asciiz "\n"
+	.align 2
+	
+day_str:	.space 3
+	.align 2
+month_str:	.space 3
+	.align 2
+year_str:	.space 5
+	.align 3
+week_day:	.space 3
+	.align 2
+	
+#------------------------------
 
-	  .data
-week_day: .space 3 
-	  .align 2
 time:	  .asciiz "25/12/2018"
 month:             .space 4
 day:		   .space 2
 year:		   .space 4
 convertedDate:     .space 10
 
+#------------------------------
+#------------------------------
 	.text
 
 	.globl main
 
 main:
-	
-	la $s0, time_1
-	la $s1, time_2
-	
-	addi $a0, $s0, 0
-	addi $a1, $zero, 'C'
-	jal Convert
 
-	addi $a0, $v0, 0
-	addi $v0, $zero, 1
-	syscall
-
+	jal Input
+	
 	#exit
+end_main:
 	addi $v0,$zero,10
 	syscall
 
+
+# Ham nhap ngay, thang, nam
+Input:
+	addi $sp,$sp,-4
+	sw $ra,0($sp)
 	
+while_input:
+while_input_day:
+	# In chuoi "Nhap ngay DAY:"
+	la $a0,day_promt
+	addi $v0, $zero, 4
+	syscall
+	
+	# Nhap ngay vao bien day
+	addi $a1,$zero,3
+	la $a0,day_str
+	addi $v0, $zero, 8
+	syscall
+	
+	# Kiem tra chuoi ngay co toan la chu so hay khong
+	addi $a1,$zero,2
+	jal Check_all_digit
+	beq $v0,$zero, while_input_day
+	
+
+while_input_month:	
+	# In chuoi "Nhap thang MONTH:"
+	la $a0,month_promt
+	addi $v0, $zero, 4
+	syscall
+	
+	# Nhap thang vao bien month
+	addi $a1,$zero,3
+	la $a0,month_str
+	addi $v0, $zero, 8
+	
+	#la $s0, time_1
+	#la $s1, time_2
+	
+	#addi $a0, $s0, 0
+	#addi $a1, $zero, 'C'
+	#jal Convert
+
+	#addi $a0, $v0, 0
+	#addi $v0, $zero, 1
+	#syscall
+	
+	# Kiem tra chuoi ngay co toan la chu so hay khong
+	addi $a1,$zero,2
+	jal Check_all_digit
+	beq $v0,$zero, while_input_month
+	
+	
+while_input_year:	
+	# In chuoi "Nhap nam YEAR:"
+	la $a0,year_promt
+	addi $v0, $zero, 4
+	syscall
+	
+	# Nhap nam vao bien year
+	addi $a1,$zero,5
+	la $a0,year_str
+	addi $v0, $zero, 8
+	syscall
+	
+	# Kiem tra chuoi ngay co toan la chu so hay khong
+	addi $a1,$zero,4
+	jal Check_all_digit
+	beq $v0,$zero, while_input_year
+	
+	lw $ra,0($sp)
+	addi $sp,$sp,4
+	jr $ra
 # ham lay ki tu thu $a1 cua string co dia chi $a0, tra gia tri ve $v0
 Getchar:	
 	# Vi lw chi lay gia tri trong cac dia chi la boi cua 4
@@ -50,13 +135,13 @@ Getchar:
 	# Lay byte o vi tri $a1 % 4 = $t2
 	# Dich phai word ($t2-1)*4 don vi, sau do and voi 0000 0000 0000 0000 0000 0000 1111 1111
 	addi $t4,$zero,0x00ff	# $t4 = 0000 0000 0000 0000 0000 0000 1111 1111
-while:
+while_getchar:
 	slt $t5,$zero,$t2	# $t5 = t2
-	beq $t5,$zero,end_while	# while (t5>0) {
+	beq $t5,$zero,end_while_getchar	# while (t5>0) {
 	srl $v0,$v0,8		#	$v0>>8;
 	addi $t2,$t2,-1		#	$t5--;
-	j while			# }
-end_while:
+	j while_getchar		# }
+end_while_getchar:
 	and $v0,$v0,$t4		# $v0 = $v0 & 0000 0000 0000 0000 0000 0000 1111 1111
 	jr $ra
 	
@@ -108,7 +193,41 @@ Getchar_Char_to_number:
 	lw $ra,4($sp)	
 	add $sp,$sp,8
 	jr $ra	
+
+# Ham kiem tra chuoi co toan la ki tu chu so hay khong
+# Chuoi co dia chi luu trong $a0, do dai $a1
+# Tra ve $v0 = 1 neu dung, $v0 = 0 neu co ki tu khong phai la chu so
+Check_all_digit:
+	addi $sp,$sp,-12
+	sw $ra,8($sp)
+	sw $a1,4($sp)
 	
+	addi $t1,$zero,0
+	
+while_checkdigit:
+	slt $t2,$t1,$a1
+	beq $t2,$zero, end_while_checkdigit
+	addi $a1,$t1,0
+	
+	sw $t1,0($sp)
+	jal Getchar_Char_to_number
+	lw $a1,4($sp)
+	lw $t1,0($sp)
+	
+	beq $v1,$zero, check_digit_false
+	addi $t1,$t1,1
+	j while_checkdigit
+	
+end_while_checkdigit:
+	addi $v0,$zero,1
+	j end_check_digit
+check_digit_false:
+	addi $v0,$zero,0
+end_check_digit:
+	lw $ra,8($sp)
+	addi $sp,$sp,12
+	jr $ra
+		
 #----------------------------------------------------------
 # Ham lay gia tri ngay trong chuoi TIME (DD/MM/YYYY) co dia chi $a0
 # Neu co the lay gia tri ngay, tra ve $v1 = 1, $v0 la gia tri ngay
