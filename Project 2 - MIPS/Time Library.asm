@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 .data
 time_1:	.asciiz "05/04/2018"
 .align 2
@@ -155,8 +154,6 @@ while_input_day:
 	addi $a1,$zero,2
 	jal Check_all_digit
 	beq $v0,$zero, while_input_day
-	
->>>>>>> cfda01087bc079df1d77b7cd08cee4c78a8dcbc1
 
 while_input_month:	
 	# In chuoi "Nhap thang MONTH:"
