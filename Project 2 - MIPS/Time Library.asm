@@ -3,22 +3,89 @@ time_1:	.asciiz "05/04/2018"
 .align 2
 time_2:	.asciiz "01/01/2020"
 week_day: .space 3 
+.text
+.globl main
+
+main:	
+	.data 
+	inputDay: .asciiz "Nhap ngay DAY:"
+	inputMonth: .asciiz "Nhap thang MONTH: "
+	inputYear: .asciiz "Nhap nam YEAR:"
+	newline: .asciiz "\n"
+	demand: .asciiz "-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
+	demand0: .asciiz "0. Thoat\n"
+	demand1: .asciiz "1. Xuat chuoi TIME theo dinh dang DD/MM/YYYY\n"
+	demand2: .asciiz "2.Chuyen doi chuoi TIME thanh mot trong cac dinh dang sau:\n A.MM/DD/YYYY\n B.Month DD, YYYY\n C.DD Month, YYYY\n"
+	demand3: .asciiz "3.Cho biet ngay vua nhap la thu may?\n"
+	demand4: .asciiz "4.Kiem tra nam trong chuoi TIME co phai nam nhuan khong?\n"
+	demand5: .asciiz "5.Cho biet khoang thoi gian giua 2 chuoi TIME_1, TIME_2\n"
+	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
+	
+	str_choice: .asciiz "Lua chon: \n"
+	str_result: .asciiz "Ket qua: \n"
+	
 	.text
-
-	.globl main
-
-main:
+LoopforChoice: 
+	#Goi ham nhap 
 	
-	la $s0, time_1
-	la $s1, time_2
+	printMENU:
+		la $a0, demand
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand0
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand1
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand2
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand3
+		addi $v0, $zero, 4
+		syscall
+		
+		
+		la $a0, demand4
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand5
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, demand6
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0, str_choice 
+		add $v0, $zero, 4
+		syscall
+		
+		add $v0, $zero, 5 	#Input lua chon cua nguoi nhap	
+		syscall 
+		add $s0, $v0, 0 	#luu lua chon vao $s0
+		
+	beq $s0, 1, Cau1
+	beq $s0, 2, Cau2
+	beq $s0, 3, Cau3
+	beq $s0, 4, Cau4
+	beq $s0, 5, Cau5
+	beq $s0, 6, Cau6
+	j exitLoop
+	Cau1: 
+	Cau2:
+	Cau3:
+	Cau4:
+	Cau5:
+	Cau6:
 	
-	#Goi ham tinh khoang cach
-	addi $a0, $s0, 0
-	addi $a1, $s1, 0
-	jal distanceDate
-	addi $a0, $v0, 0
-	addi $v0, $zero, 1
-	syscall
+	j LoopforChoice
+exitLoop: 
 
 	#exit
 	addi $v0,$zero,10
