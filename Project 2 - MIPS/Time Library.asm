@@ -1,17 +1,33 @@
-.data
-time_1:	.asciiz "05/04/2018"
-.align 2
-time_2:	.asciiz "01/01/2020"
-week_day: .space 3 
-.text
 .globl main
 
 main:	
 	.data 
-	inputDay: .asciiz "Nhap ngay DAY:"
-	inputMonth: .asciiz "Nhap thang MONTH: "
-	inputYear: .asciiz "Nhap nam YEAR:"
-	newline: .asciiz "\n"
+	time:	.asciiz "03/04/2018"
+	.align 4
+	day_promt:	.asciiz "Nhap ngay DAY:"
+	.align 5
+	month_promt:	.asciiz "\nNhap thang MONTH:"
+	.align 5
+	year_promt:	.asciiz "\nNhap nam YEAR:"
+	.align 5
+	new_line:	.asciiz "\n"
+	.align 2
+	day_str:	.space 3
+	.align 2
+	month_str:	.space 3
+	.align 2
+	year_str:	.space 5
+	.align 3
+	week_day:	.space 3
+	.align 2
+	#------------------------------
+	month:             .space 4
+	day:		   .space 2
+	year:		   .space 4
+	convertedDate:     .space 10
+
+	#------------------------------
+	#------------------------------
 	demand: .asciiz "-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
 	demand0: .asciiz "0. Thoat\n"
 	demand1: .asciiz "1. Xuat chuoi TIME theo dinh dang DD/MM/YYYY\n"
@@ -27,6 +43,7 @@ main:
 	.text
 LoopforChoice: 
 	#Goi ham nhap 
+	jal Input
 	
 	printMENU:
 		la $a0, demand
@@ -86,47 +103,8 @@ LoopforChoice:
 	
 	j LoopforChoice
 exitLoop: 
-=======
-	.data
-time:	.asciiz "03/04/2018"
-	.align 4
-day_promt:	.asciiz "Nhap ngay DAY:"
-	.align 5
-month_promt:	.asciiz "\nNhap thang MONTH:"
-	.align 5
-year_promt:	.asciiz "\nNhap nam YEAR:"
-	.align 5
-new_line:	.asciiz "\n"
-	.align 2
-	
-day_str:	.space 3
-	.align 2
-month_str:	.space 3
-	.align 2
-year_str:	.space 5
-	.align 3
-week_day:	.space 3
-	.align 2
-	
-#------------------------------
 
-time:	  .asciiz "25/12/2018"
-month:             .space 4
-day:		   .space 2
-year:		   .space 4
-convertedDate:     .space 10
-
-#------------------------------
-#------------------------------
-	.text
-
-	.globl main
-
-main:
-
-	jal Input
-	
-	#exit
+#exit
 end_main:
 	addi $v0,$zero,10
 	syscall
