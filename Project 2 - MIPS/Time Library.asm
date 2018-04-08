@@ -2,13 +2,15 @@
 
 main:	
 	.data 
-	time:	.asciiz "03/04/2018"
+	time_str:	.asciiz "----------"
 	.align 4
-	day_promt:	.asciiz "Nhap ngay DAY:"
+	day_promt:	.asciiz "\nNhap ngay DAY:"
 	.align 5
 	month_promt:	.asciiz "\nNhap thang MONTH:"
 	.align 5
 	year_promt:	.asciiz "\nNhap nam YEAR:"
+	.align 5
+	reinput_promt:	.asciiz "\nGia tri ngay thang nam khong phu hop. Nhap lai. \n"
 	.align 5
 	new_line:	.asciiz "\n"
 	.align 2
@@ -44,6 +46,18 @@ main:
 LoopforChoice: 
 	#Goi ham nhap 
 	jal Input
+	
+	# Doan nay de kiem tra time_str da dung chua
+	# Nen khi chay ok roi thi xoa nghe :vv
+	la $a0 new_line
+	addi $v0,$zero,4
+	syscall
+	la $a0 time_str
+	addi $v0,$zero,4
+	syscall
+	la $a0 new_line
+	addi $v0,$zero,4
+	syscall
 	
 	printMENU:
 		la $a0, demand
@@ -112,8 +126,8 @@ end_main:
 
 # Ham nhap ngay, thang, nam
 Input:
-	addi $sp,$sp,-4
-	sw $ra,0($sp)
+	addi $sp,$sp,-16
+	sw $ra,12($sp)
 	
 while_input:
 while_input_day:
@@ -129,10 +143,13 @@ while_input_day:
 	syscall
 	
 	# Kiem tra chuoi ngay co toan la chu so hay khong
-	addi $a1,$zero,2
-	jal Check_all_digit
-	beq $v0,$zero, while_input_day
-
+	addi $a1,$zero,0
+	addi $a2,$zero,1
+	jal String_to_number
+	beq $v1,$zero, while_input_day
+	
+	sw $v0,8($sp)	# Luu gia tri day vao stack
+	
 while_input_month:	
 	# In chuoi "Nhap thang MONTH:"
 	la $a0,month_promt
@@ -143,23 +160,15 @@ while_input_month:
 	addi $a1,$zero,3
 	la $a0,month_str
 	addi $v0, $zero, 8
-	
-	#la $s0, time_1
-	#la $s1, time_2
-	
-	#addi $a0, $s0, 0
-	#addi $a1, $zero, 'C'
-	#jal Convert
-
-	#addi $a0, $v0, 0
-	#addi $v0, $zero, 1
-	#syscall
+	syscall
 	
 	# Kiem tra chuoi ngay co toan la chu so hay khong
-	addi $a1,$zero,2
-	jal Check_all_digit
-	beq $v0,$zero, while_input_month
-	
+	addi $a1,$zero,0
+	addi $a2,$zero,1
+	jal String_to_number
+	beq $v1,$zero, while_input_month
+
+	sw $v0,4($sp)	# Luu gia tri thang vao stack
 	
 while_input_year:	
 	# In chuoi "Nhap nam YEAR:"
@@ -174,13 +183,38 @@ while_input_year:
 	syscall
 	
 	# Kiem tra chuoi ngay co toan la chu so hay khong
-	addi $a1,$zero,4
-	jal Check_all_digit
-	beq $v0,$zero, while_input_year
+	addi $a1,$zero,0
+	addi $a2,$zero,3
+	jal String_to_number
+	beq $v1,$zero, while_input_year
 	
-	lw $ra,0($sp)
-	addi $sp,$sp,4
+	sw $v0,0($sp)	# Luu gia tri year vao stack
+	
+	# Kiem tra xem cac gia tri day, month, year co hop pham vi gia tri khong
+	lw $a0,8($sp)
+	lw $a1,4($sp)
+	lw $a2,0($sp)
+	jal Check_date_value
+	bne $v0,$zero, end_while_input
+	la $a0,reinput_promt
+	addi $v0, $zero, 4
+	syscall
+	j while_input
+	
+end_while_input:
+	# Doi 3 gia tri day,month,year thanh chuoi DD/MM/YYYY
+	lw $a0,8($sp)
+	lw $a1,4($sp)
+	lw $a2,0($sp)
+	la $a3 time_str
+	jal Date	
+	
+	# Thu hoi stack va return
+	lw $ra,12($sp)
+	addi $sp,$sp,16
 	jr $ra
+	
+#-----------------------------------------------------------------
 # ham lay ki tu thu $a1 cua string co dia chi $a0, tra gia tri ve $v0
 Getchar:	
 	# Vi lw chi lay gia tri trong cac dia chi la boi cua 4
@@ -202,10 +236,10 @@ Getchar:
 	# Dich phai word ($t2-1)*4 don vi, sau do and voi 0000 0000 0000 0000 0000 0000 1111 1111
 	addi $t4,$zero,0x00ff	# $t4 = 0000 0000 0000 0000 0000 0000 1111 1111
 while_getchar:
-	slt $t5,$zero,$t2	# $t5 = t2
-	beq $t5,$zero,end_while_getchar	# while (t5>0) {
+	slt $t5,$zero,$t2	
+	beq $t5,$zero,end_while_getchar	# while (t2>0) {
 	srl $v0,$v0,8		#	$v0>>8;
-	addi $t2,$t2,-1		#	$t5--;
+	addi $t2,$t2,-1		#	$t2--;
 	j while_getchar		# }
 end_while_getchar:
 	and $v0,$v0,$t4		# $v0 = $v0 & 0000 0000 0000 0000 0000 0000 1111 1111
@@ -260,40 +294,297 @@ Getchar_Char_to_number:
 	add $sp,$sp,8
 	jr $ra	
 
-# Ham kiem tra chuoi co toan la ki tu chu so hay khong
-# Chuoi co dia chi luu trong $a0, do dai $a1
-# Tra ve $v0 = 1 neu dung, $v0 = 0 neu co ki tu khong phai la chu so
-Check_all_digit:
-	addi $sp,$sp,-12
-	sw $ra,8($sp)
-	sw $a1,4($sp)
+#----------------------------------------------------------
+# Ham chuyen doi tu chuoi sang so
+# Chuoi co dia chi luu trong $a0, chi so dau va cuoi cua chuoi su dung de chuyen sang so la $a1 va $a2
+# Tra ve $v0 bang gia tri so tinh duoc, $v1 = 1: neu co the chuyen chuoi do sang so
+# Tra ve $v1 = 1: neu khong the chuyen chuoi do sang so
+
+String_to_number:
+	addi $sp,$sp,-24
+	sw $ra,20($sp)
+	sw $a0,16($sp)
+	sw $a1,12($sp)
+	sw $a2,8($sp)
 	
-	addi $t1,$zero,0
+	addi $t0,$zero,0	# Gan so can tinh bang 0
+	addi $t1,$a1,0		# Bat dau duyet tu $a1
 	
-while_checkdigit:
-	slt $t2,$t1,$a1
-	beq $t2,$zero, end_while_checkdigit
+while_String_to_number:
+	slt $t2,$a2,$t1
+	bne $t2,$zero, end_while_String_to_number
+	
+	sw $t0,0($sp)
+	sw $t1,4($sp)
 	addi $a1,$t1,0
-	
-	sw $t1,0($sp)
 	jal Getchar_Char_to_number
-	lw $a1,4($sp)
-	lw $t1,0($sp)
+	lw $a1,12($sp)
+	lw $a2,8($sp)
+	lw $t1,4($sp)
+	lw $t0,0($sp)
 	
-	beq $v1,$zero, check_digit_false
+	beq $v1,$zero, String_to_number_false
+	addi $t3,$zero, 10
+	mult $t0,$t3
+	mflo $t0
+	add $t0,$t0,$v0
+	
 	addi $t1,$t1,1
-	j while_checkdigit
+	j while_String_to_number
 	
-end_while_checkdigit:
-	addi $v0,$zero,1
+end_while_String_to_number:
+	addi $v1,$zero,1
+	addi $v0,$t0,0
 	j end_check_digit
-check_digit_false:
-	addi $v0,$zero,0
+String_to_number_false:
+	addi $v1,$zero,0
 end_check_digit:
-	lw $ra,8($sp)
-	addi $sp,$sp,12
+	lw $ra,20($sp)
+	addi $sp,$sp,24
 	jr $ra
+
+#-----------------------------------------------------------
+# Ham kiem tra bo ba gia tri (ngay, thang, nam) = ($a0, $a1, $a2) co hop le khong
+# Tra ve $v0=1 neu hop le, $v0=0 neu khong hop le
+Check_date_value:
+	# Luu $ra,$a0 vao stack
+	addi $sp,$sp,-8
+	sw $ra,4($sp)
+	sw $a0,0($sp)
+	
+	# Kiem tra xem ngay va thang co bang 0 hay khong
+	beq $a1,$zero,Check_date_value_false
+	beq $a0,$zero,Check_date_value_false
+	
+	# Kiem tra xem thang co be hon hoac bang 12 khong
+	addi $t1,$zero,12
+	slt $t2,$t1,$a1
+	bne $t2,$zero,Check_date_value_false
+	
+	# Kiem tra co phai thang 2 hay khong
+	addi $t0,$zero,2
+	beq $a1,$t0, month_28_days
+	
+	# Kiem tra co phai thang 4,6,9,11 (30 ngay) hay khong
+	addi $t0,$zero,4
+	beq $a1,$t0, month_30_days
+	addi $t0,$zero,6
+	beq $a1,$t0, month_30_days
+	addi $t0,$zero,9
+	beq $a1,$t0, month_30_days
+	addi $t0,$zero,11
+	beq $a1,$t0, month_30_days
+	
+	# Thang co 31 ngay
+	addi $t1,$zero,31
+	slt $t2,$t1,$a0
+	beq $t2,$zero,Check_date_value_true
+	j Check_date_value_false
+	
+month_28_days:
+	addi $a0,$a2,0
+	jal isLeapYear
+	lw $a0,0($sp)
+	bne $v0,$zero,month_28_days_leapyear
+	
+	addi $t1,$zero,28
+	slt $t2,$t1,$a0
+	beq $t2,$zero,Check_date_value_true
+	j Check_date_value_false
+	
+month_28_days_leapyear:
+	addi $t1,$zero,29
+	slt $t2,$t1,$a0
+	beq $t2,$zero,Check_date_value_true
+	j Check_date_value_false
+	
+month_30_days:
+	# Thang co 30 ngay
+	addi $t1,$zero,30
+	slt $t2,$t1,$a0
+	beq $t2,$zero,Check_date_value_true
+	j Check_date_value_false
+
+Check_date_value_false:
+	addi $v0,$zero,0
+	j end_Check_date_value
+Check_date_value_true:	
+	addi $v0,$zero,1
+end_Check_date_value:
+	lw $ra,4($sp)
+	lw $a0,0($sp)
+	addi $sp,$sp,8
+	jr $ra
+	
+#-------------------------------------------------------------
+# Ham gan ki tu $a2 vao vi tri $a1 cua string $a0
+Setchar:
+	# $t2 = $a1 % 4
+	# $t1 = $a1 - $t2
+	addi $t0,$zero,4	# $t0 = 4
+	div $a1,$t0		
+	mflo $t1		# $t1 = $a1 div 4
+	sll $t1,$t1,2		# $t1 = ($a1 div 4) * 4 = $a1 - a1 % 4
+	mfhi $t2		# $t2 = $a1 % 4
+	
+	addi $t4,$zero,0x00ff
+	
+while_setchar:
+	slt $t5,$zero,$t2	
+	beq $t5,$zero,end_while_setchar	# while (t5>0) {
+	sll $a2,$a2,8		#	$v0<<8;
+	sll $t4,$t4,8
+	addi $t2,$t2,-1		#	$t5--;
+	j while_setchar		# }
+end_while_setchar:
 		
+	add $t3,$a0,$t1
+	lw $t5,0($t3)
+	
+	nor $t4,$t4,$zero	# AND string voi 111..1 0000 0000 111..1 de dua cac bit can gan ve 0
+	and $t5,$t5,$t4
+	or $t5,$t5,$a2		# OR ki tu $a2 voi chuoi $a0
+	sw $t5,0($t3)
+	
+	jr $ra
+	
+#------------------------------------------------------------------
+Date:
+	addi $sp,$sp,-28
+	sw $ra,24($sp)
+	sw $a0,0($sp)
+	sw $a1,4($sp)
+	sw $a2,8($sp)
+	sw $a3,12($sp)
+	
+	addi $t0,$zero,10
+	sw $t0,16($sp)
+	
+	# Dua 'day' vao chuoi
+	# Dua chu so hang chuc cua day vao chuoi
+	lw $a0,0($sp)
+	lw $t0,16($sp)
+	div $a0,$t0
+	mflo $t2
+	addi $t1,$t2,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,0
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua chu so hang don vi cua day vao chuoi
+	lw $a0,0($sp)
+	lw $t0,16($sp)
+	div $a0,$t0
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,1
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua ki tu '/' vaof chuoi
+	addi $a0,$a3,0
+	addi $a1,$zero,2
+	addi $a2,$zero,'/'
+	jal Setchar
+	
+	# Dua month vao chuoi
+	# Dua chu so hang chuc cua month vao chuoi
+	lw $a1,4($sp)
+	lw $t0,16($sp)
+	div $a1,$t0
+	mflo $t2
+	addi $t1,$t2,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,3
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua chu so hang don vi cua month vao chuoi
+	lw $a1,4($sp)
+	lw $t0,16($sp)
+	div $a1,$t0
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,4
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua ki tu '/' vao chuoi
+	addi $a0,$a3,0
+	addi $a1,$zero,5
+	addi $a2,$zero,'/'
+	jal Setchar
+	
+	# Dua year vao chuoi
+	# Dua chu so hang don vi cua year vao chuoi
+	lw $a2,8($sp)
+	lw $t0,16($sp)
+	div $a2,$t0
+	mflo $t2
+	sw $t2,20($sp)
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,9
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua chu so hang chuc cua day vao chuoi
+	lw $t2,20($sp)
+	lw $t0,16($sp)
+	div $t2,$t0
+	mflo $t2
+	sw $t2,20($sp)
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,8
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua chu so hang tram cua day vao chuoi
+	lw $t2,20($sp)
+	lw $t0,16($sp)
+	div $t2,$t0
+	mflo $t2
+	sw $t2,20($sp)
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,7
+	addi $a2,$t1,0
+	jal Setchar
+	
+	# Dua chu so hang nghin cua day vao chuoi
+	lw $t2,20($sp)
+	lw $t0,16($sp)
+	div $t2,$t0
+	mflo $t2
+	sw $t2,20($sp)
+	mfhi $t3
+	addi $t1,$t3,48
+	
+	addi $a0,$a3,0
+	addi $a1,$zero,6
+	addi $a2,$t1,0
+	jal Setchar
+	
+	
+	lw $ra,24($sp)
+	addi $sp,$sp,28
+	
+	jr $ra
+			
 #----------------------------------------------------------
 # Ham lay gia tri ngay trong chuoi TIME (DD/MM/YYYY) co dia chi $a0
 # Neu co the lay gia tri ngay, tra ve $v1 = 1, $v0 la gia tri ngay
