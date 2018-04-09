@@ -41,11 +41,16 @@ main:
 	
 	str_choice: .asciiz "Lua chon: \n"
 	str_result: .asciiz "Ket qua: \n"
-	
+
+	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
+	cau4_result1: .asciiz "Nam nhuan"
+	cau4_result0: .asciiz "Khong phai nam nhuan"
 	.text
-LoopforChoice: 
 	#Goi ham nhap 
 	jal Input
+	addi $a2, $a0, 0     # Luu chuoi input vao $a2 (luu tam)
+LoopforChoice: 
+	
 	
 	# Doan nay de kiem tra time_str da dung chua
 	# Nen khi chay ok roi thi xoa nghe :vv
@@ -101,6 +106,7 @@ LoopforChoice:
 		syscall 
 		add $s0, $v0, 0 	#luu lua chon vao $s0
 		
+		addi $a0, $a2, 0     # Tra lai chuoi input vao $a0
 	beq $s0, 1, Cau1
 	beq $s0, 2, Cau2
 	beq $s0, 3, Cau3
@@ -110,8 +116,41 @@ LoopforChoice:
 	j exitLoop
 	Cau1: 
 	Cau2:
+		la $a0, cau2_choice
+		addi $v0, $zero, 4
+		syscall
+		addi $v0, $zero, 12    #Input lua chon cua nguoi nhap	
+		syscall 
+		addi $a1, $v0, 0
+		
+		jal Convert 
+		
+		addi $a1, $v0, 0
+		la $a0, str_result
+		addi $v0, $zero, 4
+		syscall
+		addi $a0, $a1, 0
+		addi $v0, $zero, 4
+		syscall
 	Cau3:
+		jal WeekDay
+		addi $a0, $v0, 0
+		addi $v0, $zero, 4
+		syscall
 	Cau4:
+		jal LeapYear
+		beq $v0, $zero, result0
+		addi $a2, $a0, 0      # Luu tam chuoi input vao $a2
+		la $a0, cau4_result1
+		addi $v0, $zero, 4
+		syscall
+		j exit_Cau4
+	result0:
+		la $a0, cau4_result0
+		addi $v0, $zero, 4
+		syscall
+	exit_Cau4:
+		addi $a0, $a2, 0	
 	Cau5:
 	Cau6:
 	
