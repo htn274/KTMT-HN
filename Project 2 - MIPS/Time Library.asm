@@ -2,8 +2,6 @@
 
 main:	
 	.data 
-	time_str:	.asciiz "----------"
-	.align 4
 	day_promt:	.asciiz "\nNhap ngay DAY:"
 	.align 5
 	month_promt:	.asciiz "\nNhap thang MONTH:"
@@ -48,10 +46,23 @@ main:
 	cau4_result1: .asciiz "Nam nhuan"
 	cau4_result0: .asciiz "Khong phai nam nhuan"
 	.text
+	
 	#Goi ham nhap 
 	jal Input
-	addi $a2, $a0, 0     # Luu chuoi input vao $a2 (luu tam)
-LoopforChoice: 	
+	addi $s0,$v0,0	# Luu dia chi cua chuoi time vua tao vao $s0
+	
+	# Doan nay de kiem tra time da dung chua
+	la $a0 new_line
+	addi $v0,$zero,4
+	syscall
+	addi $a0,$s0,0
+	addi $v0,$zero,4
+	syscall
+	la $a0 new_line
+	addi $v0,$zero,4
+	syscall
+  
+LoopforChoice: 
 	printMENU:
 		la $a0, demand
 		addi $v0, $zero, 4
@@ -187,8 +198,8 @@ end_main:
 
 # Ham nhap ngay, thang, nam
 Input:
-	addi $sp,$sp,-16
-	sw $ra,12($sp)
+	addi $sp,$sp,-20
+	sw $ra,16($sp)
 	
 while_input:
 while_input_day:
@@ -263,16 +274,24 @@ while_input_year:
 	j while_input
 	
 end_while_input:
+	# Cap phat bo nho 11 byte de luu chuoi time, luu dia chi vao stack
+	addi $a0,$zero,11
+	addi $v0,$zero,9
+	syscall
+	sw $v0,12($sp)
+	
 	# Doi 3 gia tri day,month,year thanh chuoi DD/MM/YYYY
 	lw $a0,8($sp)
 	lw $a1,4($sp)
 	lw $a2,0($sp)
-	la $a3 time_str
+	lw $a3,12($sp)
 	jal Date	
+
+	addi $v0,$v0,0	# Tra ve gia tri tra ve cua ham Date
 	
 	# Thu hoi stack va return
-	lw $ra,12($sp)
-	addi $sp,$sp,16
+	lw $ra,16($sp)
+	addi $sp,$sp,20
 	jr $ra
 	
 #-----------------------------------------------------------------
@@ -640,7 +659,7 @@ Date:
 	addi $a2,$t1,0
 	jal Setchar
 	
-	
+	lw $v0,12($sp)
 	lw $ra,24($sp)
 	addi $sp,$sp,28
 	
