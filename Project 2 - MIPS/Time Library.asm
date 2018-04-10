@@ -24,33 +24,53 @@ main:
 	.align 2
 	#------------------------------
 	month:             .space 4
+	.align 2
 	day:		   .space 2
+	.align 2
 	year:		   .space 4
+	.align 2
 	convertedDate:     .space 10
+	.align 2
 
 	#------------------------------
 	#------------------------------
 	demand: .asciiz "\n-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
+	.align 2
 	demand0: .asciiz "0. Thoat\n"
+	.align 2
 	demand1: .asciiz "1. Xuat chuoi TIME theo dinh dang DD/MM/YYYY\n"
+	.align 2
 	demand2: .asciiz "2.Chuyen doi chuoi TIME thanh mot trong cac dinh dang sau:\n A.MM/DD/YYYY\n B.Month DD, YYYY\n C.DD Month, YYYY\n"
+	.align 2
 	demand3: .asciiz "3.Cho biet ngay vua nhap la thu may?\n"
+	.align 2
 	demand4: .asciiz "4.Kiem tra nam trong chuoi TIME co phai nam nhuan khong?\n"
+	.align 2
 	demand5: .asciiz "5.Cho biet khoang thoi gian giua 2 chuoi TIME_1, TIME_2\n"
+	.align 2
 	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
+	.align 2
 	
 	str_choice: .asciiz "Lua chon: "
-	str_result: .asciiz "Ket qua: "
-	
+	.align 2
+	str_result: .asciiz "\nKet qua: "
+	.align 2
 	SPACE: .asciiz " "
+	.align 2
 
 	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
+	.align 2
+	
 	cau4_result1: .asciiz "Nam nhuan"
+	.align 2
 	cau4_result0: .asciiz "Khong phai nam nhuan"
+	.align 2
 	.text
-	#Goi ham nhap 
+	
+	#Goi ham nhap
 	jal Input
-	addi $a2, $a0, 0     # Luu chuoi input vao $a2 (luu tam)
+	la $s0, time_str 	#Luu chuoi TIME vua moi nhap vao $s0
+	
 LoopforChoice: 	
 	printMENU:
 		la $a0, demand
@@ -94,8 +114,6 @@ LoopforChoice:
 		syscall 
 		add $t0, $v0, 0 	#luu lua chon vao $t0
 		
-		addi $a0, $a2, 0     # Tra lai chuoi input vao $a0
-		
 	beq $t0, 1, Cau1
 	beq $t0, 2, Cau2
 	beq $t0, 3, Cau3
@@ -108,11 +126,7 @@ LoopforChoice:
 		addi $v0, $zero, 4
 		syscall
 		
-		la $a0 time_str
-		addi $v0,$zero,4
-		syscall
-		
-		la $a0 new_line
+		addi $a0, $s0, 0
 		addi $v0,$zero,4
 		syscall
 		
@@ -124,14 +138,15 @@ LoopforChoice:
 		addi $v0, $zero, 12    #Input lua chon cua nguoi nhap	
 		syscall 
 		addi $a1, $v0, 0
-		
-		jal Convert 
-		
-		addi $a1, $v0, 0
-		la $a0, str_result
+				
+		la $a0, str_result	#In cau thong bao ket qua
 		addi $v0, $zero, 4
 		syscall
-		addi $a0, $a1, 0
+		
+		addi $a0, $s0, 0	#load chuoi TIME 
+		jal Convert 		#Goi ham Convert
+		
+		addi $a0, $v0, 0	#Lay ket qua tra ve cua ham de in ra
 		addi $v0, $zero, 4
 		syscall
 		j LoopforChoice
@@ -140,8 +155,9 @@ LoopforChoice:
 		addi $v0, $zero, 4
 		syscall
 		
-		jal WeekDay
-		addi $a0, $v0, 0
+		addi $a0, $s0, 0	#Load chuoi TIME
+		jal WeekDay		#Goi ham Week Day
+		addi $a0, $v0, 0	
 		addi $v0, $zero, 4
 		syscall
 		
@@ -151,28 +167,51 @@ LoopforChoice:
 		addi $v0, $zero, 4
 		syscall
 		
-		jal LeapYear
+		addi $a0, $s0, 0	#Load chuoi TIME 
+		jal LeapYear		#Goi ham kiem tra LeapYear
 		beq $v0, $zero, result0
-		addi $a2, $a0, 0      # Luu tam chuoi input vao $a2
 		
 		la $a0, cau4_result1
 		addi $v0, $zero, 4
 		syscall
 		j exit_Cau4
-	result0:
+	result0:	#truong hop khong la nam nhuan
 		la $a0, cau4_result0
 		addi $v0, $zero, 4
 		syscall
 	exit_Cau4:
-		addi $a0, $a2, 0
 		j LoopforChoice	
-	Cau5:
+	Cau5:	#CHUA XONG
+		#Nhap chuoi TIME_2
+		jal Input 
+		la $s1, time_str #Load chuoi TIME_2 vao $s1
+		
+		la $a0, str_result	#In thong bao "Ket qua: "
+		addi $v0, $zero, 4
+		syscall
+		
+		#So sanh neu TIME_1 < TIME_2 goi distanceDate(time_1, time_2), nguoc lai distanceDate(time_2, time_1)
+		addi $a0, $s0, 0
+		addi $a1, $s1, 0
+		jal compareDate 
+		bne $v0, $zero, CallDistance
+		addi $a0, $s1, 0
+		addi $a1, $s0, 0
+	CallDistance:			
+		jal distanceDate
+		
+		addi $a0, $v0, 0
+		addi $v0, $zero, 1
+		syscall 
+		
+		j LoopforChoice
 		
 	Cau6:
 		la $a0, str_result	#In thong bao "Ket qua: "
 		addi $v0, $zero, 4
 		syscall
 		
+		addi $a0, $s0, 0
 		jal next2LeapYear
 		
 	
@@ -1541,7 +1580,7 @@ exitMainConvert:
 
 #-------------------------------------
 #Tinh khoang cach giua 2 chuoi TIME_1 va TIME_2
-#Input vao chuoi TIME_1 phai nho hon TIME_2
+#Input vao chuoi TIME_1 < TIME_2
 #Don vi tinh: nam
 distanceDate:
 	addi $sp, $sp, -24
@@ -1578,8 +1617,8 @@ compareMonth:
 	lw $t1, 12($sp)
 	lw $t2, 16($sp)
 	beq $t2, $t1, compareDay 	#Neu thang bang nhau thi so sanh ngay
-	slt $t0, $t2, $t1  		#So sanh gia tri $t1 < $t0
-	beq $t0, 1, decrease
+	slt $t0, $t2, $t1  		#So sanh gia tri $t2 < $t1 
+	bne $t0, $zero, decrease
 	j exitDistanceDate
 	
 compareDay:
@@ -1596,7 +1635,7 @@ compareDay:
 	lw $t1, 12($sp)
 	lw $t2, 16($sp)
 	slt $t0, $t2, $t1
-	beq $t0, 0, exitDistanceDate 
+	beq $t0, $zero, exitDistanceDate 
 	
 #Giam ket qua xuong 1 
 decrease:
@@ -1613,3 +1652,69 @@ exitDistanceDate:
 	addi $sp, $sp, 24
 	jr $ra
 
+#Ham so sanh 2 TIME_1($a0) va TIME_2 ($a1)
+#Ket qua ham duoc luu o dia chi $v0
+#$v0 = 1 neu TIME_1 < TIME_2 nguoc lai thi $v0 = 0
+compareDate: 
+	addi $sp, $sp, -24
+	sw $ra, 0($sp)
+	sw $a0, 4($sp) 	#Luu chuoi TIME_1
+	sw $a1, 8($sp)	#Luu chuoi TIME_2
+
+	#Lay Year cua TIME_1
+	lw $a0, 4($sp)
+	jal Year
+	sw $v0, 12($sp)
+	#Lay Year cua TIME_2
+	lw $a0, 8($sp)
+	jal Year
+	sw $v0, 16($sp)
+	
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	beq $t1, $t2, cmpMonth
+	slt $t0, $t1, $t2 	#so sanh nam
+	bne $t0, $zero, Smaller
+	beq $t0, $zero, Bigger 
+cmpMonth:
+	#Lay Month cua TIME_1
+	lw $a0, 4($sp)
+	jal Month
+	sw $v0, 12($sp)
+	#Lay Month cua TIME_2
+	lw $a0, 8($sp)
+	jal Month
+	sw $v0, 16($sp)
+	
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	beq $t1, $t2, cmpDay
+	slt $t0, $t1, $t2 	#so sanh nam
+	bne $t0, $zero, Smaller
+	beq $t0, $zero, Bigger 	
+cmpDay:
+	#Lay Year cua TIME_1
+	lw $a0, 4($sp)
+	jal Day
+	sw $v0, 12($sp)
+	#Lay Year cua TIME_2
+	lw $a0, 8($sp)
+	jal Day
+	sw $v0, 16($sp)
+	
+	lw $t1, 12($sp)
+	lw $t2, 16($sp)
+	slt $t0, $t1, $t2 	#so sanh nam
+	bne $t0, $zero, Smaller
+Bigger:	
+	addi $v0, $zero, 0
+	j exitCompareDate
+Smaller:
+	addi $v0, $zero, 1
+exitCompareDate:	
+	lw $ra, 0($sp)
+	lw $a0, 4($sp) 	
+	lw $a1, 8($sp)
+	addi $sp, $sp, 24
+	jr $ra
+	
