@@ -51,17 +51,6 @@ main:
 	jal Input
 	addi $s0,$v0,0	# Luu dia chi cua chuoi time vua tao vao $s0
 	
-	# Doan nay de kiem tra time da dung chua
-	la $a0 new_line
-	addi $v0,$zero,4
-	syscall
-	addi $a0,$s0,0
-	addi $v0,$zero,4
-	syscall
-	la $a0 new_line
-	addi $v0,$zero,4
-	syscall
-  
 LoopforChoice: 
 	printMENU:
 		la $a0, demand
@@ -119,7 +108,7 @@ LoopforChoice:
 		addi $v0, $zero, 4
 		syscall
 		
-		la $a0 time_str
+		addi $a0,$s0,0
 		addi $v0,$zero,4
 		syscall
 		
@@ -197,6 +186,7 @@ end_main:
 
 
 # Ham nhap ngay, thang, nam
+# Tra ve $v0 la dia chi cua chuoi time theo dinh danh DD/MM/YYYY
 Input:
 	addi $sp,$sp,-20
 	sw $ra,16($sp)
@@ -529,6 +519,8 @@ end_while_setchar:
 	jr $ra
 	
 #------------------------------------------------------------------
+# Truyen vao tham so day, month, year, dia chi cua chuoi time
+# Tra ve dia chi cua chuoi time sau khi ghi gia tri ngay theo dinh dang DD/MM/YYYY
 Date:
 	addi $sp,$sp,-28
 	sw $ra,24($sp)
