@@ -65,19 +65,11 @@ main:
 	.align 2
 	.text
 	
-<<<<<<< HEAD
-	#Goi ham nhap
-	jal Input
-	la $s0, time_str 	#Luu chuoi TIME vua moi nhap vao $s0
-	
-LoopforChoice: 	
-=======
 	#Goi ham nhap 
 	jal Input
 	addi $s0,$v0,0	# Luu dia chi cua chuoi time vua tao vao $s0
 	
 LoopforChoice: 
->>>>>>> 034049678b0babab316980ea8f0b8e5fe4ff5708
 	printMENU:
 		la $a0, demand
 		addi $v0, $zero, 4
@@ -132,15 +124,7 @@ LoopforChoice:
 		addi $v0, $zero, 4
 		syscall
 		
-<<<<<<< HEAD
 		addi $a0, $s0, 0
-=======
-		addi $a0,$s0,0
-		addi $v0,$zero,4
-		syscall
-		
-		la $a0 new_line
->>>>>>> 034049678b0babab316980ea8f0b8e5fe4ff5708
 		addi $v0,$zero,4
 		syscall
 		
@@ -197,8 +181,8 @@ LoopforChoice:
 		j LoopforChoice	
 	Cau5:	#CHUA XONG
 		#Nhap chuoi TIME_2
-		jal Input 
-		la $s1, time_str #Load chuoi TIME_2 vao $s1
+		jal Input
+		addi $s1, $v0, 0
 		
 		la $a0, str_result	#In thong bao "Ket qua: "
 		addi $v0, $zero, 4
