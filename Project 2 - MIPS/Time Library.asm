@@ -28,7 +28,7 @@ main:
 
 	#------------------------------
 	#------------------------------
-	demand: .asciiz "-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
+	demand: .asciiz "\n-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
 	demand0: .asciiz "0. Thoat\n"
 	demand1: .asciiz "1. Xuat chuoi TIME theo dinh dang DD/MM/YYYY\n"
 	demand2: .asciiz "2.Chuyen doi chuoi TIME thanh mot trong cac dinh dang sau:\n A.MM/DD/YYYY\n B.Month DD, YYYY\n C.DD Month, YYYY\n"
@@ -37,17 +37,21 @@ main:
 	demand5: .asciiz "5.Cho biet khoang thoi gian giua 2 chuoi TIME_1, TIME_2\n"
 	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
 	
-	str_choice: .asciiz "Lua chon: \n"
-	str_result: .asciiz "Ket qua: \n"
+	str_choice: .asciiz "Lua chon: "
+	str_result: .asciiz "Ket qua: "
 	
+	SPACE: .asciiz " "
+
+	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
+	cau4_result1: .asciiz "Nam nhuan"
+	cau4_result0: .asciiz "Khong phai nam nhuan"
 	.text
 	
 	#Goi ham nhap 
 	jal Input
-	addi $s0,$v0,0	# Luu dia chi cua chuoi time výa tao vao $s0
+	addi $s0,$v0,0	# Luu dia chi cua chuoi time vua tao vao $s0
 	
 	# Doan nay de kiem tra time da dung chua
-	# Nen khi chay ok roi thi xoa nghe :vv
 	la $a0 new_line
 	addi $v0,$zero,4
 	syscall
@@ -57,6 +61,7 @@ main:
 	la $a0 new_line
 	addi $v0,$zero,4
 	syscall
+  
 LoopforChoice: 
 	printMENU:
 		la $a0, demand
@@ -98,21 +103,89 @@ LoopforChoice:
 		
 		add $v0, $zero, 5 	#Input lua chon cua nguoi nhap	
 		syscall 
-		add $s0, $v0, 0 	#luu lua chon vao $s0
+		add $t0, $v0, 0 	#luu lua chon vao $t0
 		
-	beq $s0, 1, Cau1
-	beq $s0, 2, Cau2
-	beq $s0, 3, Cau3
-	beq $s0, 4, Cau4
-	beq $s0, 5, Cau5
-	beq $s0, 6, Cau6
+		addi $a0, $a2, 0     # Tra lai chuoi input vao $a0
+		
+	beq $t0, 1, Cau1
+	beq $t0, 2, Cau2
+	beq $t0, 3, Cau3
+	beq $t0, 4, Cau4
+	beq $t0, 5, Cau5
+	beq $t0, 6, Cau6
 	j exitLoop
-	Cau1: 
+	Cau1: #In ket qua chuoi da nhap
+		la $a0, str_result	#In thong bao "Ket qua: "
+		addi $v0, $zero, 4
+		syscall
+		
+		la $a0 time_str
+		addi $v0,$zero,4
+		syscall
+		
+		la $a0 new_line
+		addi $v0,$zero,4
+		syscall
+		
+		j LoopforChoice
 	Cau2:
+		la $a0, cau2_choice
+		addi $v0, $zero, 4
+		syscall
+		addi $v0, $zero, 12    #Input lua chon cua nguoi nhap	
+		syscall 
+		addi $a1, $v0, 0
+		
+		jal Convert 
+		
+		addi $a1, $v0, 0
+		la $a0, str_result
+		addi $v0, $zero, 4
+		syscall
+		addi $a0, $a1, 0
+		addi $v0, $zero, 4
+		syscall
+		j LoopforChoice
 	Cau3:
+		la $a0, str_result	#In thong bao "Ket qua: "
+		addi $v0, $zero, 4
+		syscall
+		
+		jal WeekDay
+		addi $a0, $v0, 0
+		addi $v0, $zero, 4
+		syscall
+		
+		j LoopforChoice
 	Cau4:
+		la $a0, str_result	#In thong bao "Ket qua: "
+		addi $v0, $zero, 4
+		syscall
+		
+		jal LeapYear
+		beq $v0, $zero, result0
+		addi $a2, $a0, 0      # Luu tam chuoi input vao $a2
+		
+		la $a0, cau4_result1
+		addi $v0, $zero, 4
+		syscall
+		j exit_Cau4
+	result0:
+		la $a0, cau4_result0
+		addi $v0, $zero, 4
+		syscall
+	exit_Cau4:
+		addi $a0, $a2, 0
+		j LoopforChoice	
 	Cau5:
+		
 	Cau6:
+		la $a0, str_result	#In thong bao "Ket qua: "
+		addi $v0, $zero, 4
+		syscall
+		
+		jal next2LeapYear
+		
 	
 	j LoopforChoice
 exitLoop: 
@@ -135,7 +208,7 @@ while_input_day:
 	addi $v0, $zero, 4
 	syscall
 	
-	# Nhap ngay vao bien day
+	# Nhap ngay vao bien da
 	addi $a1,$zero,3
 	la $a0,day_str
 	addi $v0, $zero, 8
@@ -305,7 +378,7 @@ Getchar_Char_to_number:
 # Ham chuyen doi tu chuoi sang so
 # Chuoi co dia chi luu trong $a0, chi so dau va cuoi cua chuoi su dung de chuyen sang so la $a1 va $a2
 # Tra ve $v0 bang gia tri so tinh duoc, $v1 = 1: neu co the chuyen chuoi do sang so
-# Tra ve $v1 = 1: neu khong the chuyen chuoi do sang so
+# Tra ve $v1 = 0: neu khong the chuyen chuoi do sang so
 
 String_to_number:
 	addi $sp,$sp,-24
@@ -1020,6 +1093,8 @@ exitLeapYear:
 #--------------------------------------
 #Xuat 2 nam nhuan lien ke
 #Tham so truyen vao la char* TIME
+# $a0 : DD/MM/YYYY
+#$v0 la nam nho, $v1 la nam lon
 next2LeapYear:
 	addi $sp, $sp, -16
 	sw $ra, 0($sp)
@@ -1057,6 +1132,10 @@ exitNext2LeapYear:
 	addi $v0, $zero, 1
 	syscall
 
+	la $a0, SPACE 
+	addi $v0, $zero, 4
+	syscall 
+	
 	lw $a0, 12($sp)		#ket qua 2
 	addi $v0, $zero, 1
 	syscall
