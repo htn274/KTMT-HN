@@ -879,18 +879,34 @@ LeapYear:
 	lw $a0, 0($sp)
 	jr $ra
 #--------------------------------------------------
-# Cho biet nam do thuoc the ki nao
-getCentury:
+# Ham lay tham so C trong cong thuc, tham so C chinh la hai so cuoi cua nam
+getC:
 	add $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	addi $t0, $a0, 0  # Year
-	# Cong thuc tinh the ki tong quat la: century = (year + 99) / 100
-	addi $t0, $t0, 99  # year + 99
-	addi $t1, $zero, 100  
-	div $t0, $t1
-	mflo $t2      # (year + 99) / 100
-	addi $v0, $t2, 0
+	# C la hai chu so dau tien cua nam
+	addi $t1, $zero, 100    
+	div $t0, $t1               
+	mflo $v0         # Tra ve hai chu so dau tien cua nam
+	
+	lw $a0, 0($sp)
+	lw $ra, 4($sp)
+	addi $sp, $sp, 8
+	jr $ra
+
+#--------------------------------------------------
+# Ham lay tham so D trong cong thuc, tham so D chinh la 2 so cuoi cua nam
+getD:
+	add $sp, $sp, -8
+	sw $ra, 4($sp)
+	sw $a0, 0($sp)
+	addi $t0, $a0, 0  # Year
+	# C la hai chu so dau tien cua nam
+	addi $t1, $zero, 100    
+	div $t0, $t1               
+	mfhi $v0         # Tra ve hai chu so dau tien cua nam
+	
 	lw $a0, 0($sp)
 	lw $ra, 4($sp)
 	addi $sp, $sp, 8
@@ -902,19 +918,19 @@ getWeekDayString:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	la $t0, week_day    # week_day la chuoi tra ve
-	beq $a0, $zero, Saturday
+	beq $a0, $zero, Sunday
 	addi $t2, $a0, -1
-	beq $t2, $zero, Sunday
-	addi $t2, $a0, -2
 	beq $t2, $zero, Monday
-	addi $t2, $a0, -3
+	addi $t2, $a0, -2
 	beq $t2, $zero, Tuesday
-	addi $t2, $a0, -4
+	addi $t2, $a0, -3
 	beq $t2, $zero, Wednesday
-	addi $t2, $a0, -5
+	addi $t2, $a0, -4
 	beq $t2, $zero, Thursday
-	addi $t2, $a0, -6
+	addi $t2, $a0, -5
 	beq $t2, $zero, Friday
+	addi $t2, $a0, -6
+	beq $t2, $zero,Saturday
 	#Tao cac chuoi tuong ung voi cac thu trong tuan
 	Monday:
 		addi $t1, $zero, 77
@@ -984,61 +1000,17 @@ getM:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
-	jal Month
-	addi $t8, $v0, 0             # Month
-	jal LeapYear
-	addi $t1, $v0, 0             # Kiem tra nam nhuan
-	beq $t1, $zero, notLeapYear
-	addi $t0, $t8, -1
-	beq $t0, $zero, return6
-	addi $t0, $t8, -2
-	beq $t0, $zero, return2
-notLeapYear:
-	addi $t0, $t8, -1
-	beq $t0, $zero, return0
-	addi $t0, $t8, -2
-	beq $t0, $zero, return3
-	addi $t0, $t8, -3
-	beq $t0, $zero, return3
-	addi $t0, $t8, -4
-	beq $t0, $zero, return6
-	addi $t0, $t8, -5
-	beq $t0, $zero, return1
-	addi $t0, $t8, -6
-	beq $t0, $zero, return4
-	addi $t0, $t8, -7
-	beq $t0, $zero, return6
-	addi $t0, $t8, -8
-	beq $t0, $zero, return2
-	addi $t0, $t8, -9
-	beq $t0, $zero, return5
-	addi $t0, $t8, -10
-	beq $t0, $zero, return0
-	addi $t0, $t8, -11
-	beq $t0, $zero, return3
-	addi $t0, $t8, -12
-	beq $t0, $zero, return5
-	return0:
-		addi $v0, $zero, 0
-		j exitGetM
-	return1:
-		addi $v0, $zero, 1
-		j exitGetM
-	return2:
-		addi $v0, $zero, 2
-		j exitGetM
-	return3:
-		addi $v0, $zero, 3
-		j exitGetM
-	return4:
-		addi $v0, $zero, 4
-		j exitGetM
-	return5:
-		addi $v0, $zero, 5
-		j exitGetM
-	return6:
-		addi $v0, $zero, 6
-		j exitGetM
+	# Vi so thu tu cac thang bat dau tu thang 3 (March-1, April-2,...) nen 
+	# ta co cong thuc m = (month + 10) % 12
+	addi $t0, $a0, 10
+	addi $t1, $zero, 12
+	div $t0, $t1
+	mfhi $t2
+	beq $t2, $zero, returnFeb
+	addi $v0, $t2, 0
+	j exitGetM
+	returnFeb:
+		addi $v0, $zero, 12
 	exitGetM:
 		lw $ra, 4($sp)
 		lw $a0, 0($sp)
@@ -1046,37 +1018,71 @@ notLeapYear:
 		jr $ra
 #--------------------------------------
 # Cho biet ngay do la thu may trong tuan
+# Su dung cong thuc: weekday = {k + [(13*m-1)/5] + D + [D/4] + [C/4] - 2*C} % 7
 WeekDay:
-	addi $sp, $sp, -8
+	addi $sp, $sp, -20
 	sw $a0, 0($sp)
 	sw $ra, 4($sp)
-	jal Day               # $s0 = d
-	addi $s0, $v0, 0
-	jal getM
-	addi $s1, $v0, 0      #  $s1 = m
-	jal Year
-	addi $s2, $v0, 0
-	addi $t0, $zero, 100
-	div $s2, $t0
-	mfhi $s2              # $s2 = y
+	jal Day
+	sw $v0, 8($sp) # Luu vao stack
+	
+	jal Month
+	addi $t8, $v0, 0   # $t8 = month
+	
 	addi $a0, $v0, 0
-	jal getCentury
-	addi $s3, $v0, 0        # $s3 = c
-	add $s4, $s1, $s0      # d + m
-	add $s4, $s3, $s4   # + c
-	add $s4, $s2, $s4    # + y
-	addi $t5, $zero, 4     # = 4
-	div $s2, $t5           # y / 4
-	mflo $s6
-	add $s4, $s6, $s4   # d + m + y + y/4 + c
-	addi $t0, $zero, 7
-	div $s4, $t0
-	mfhi $t1
-	addi $a0, $t1, 0
+	jal getM
+	sw $v0, 12($sp)  # Luu vao stack
+	
+	lw $a0, 0($sp)      # Khoi phuc lai chuoi input
+	
+	jal Year
+	addi $a0, $v0, 0    # $a0 = year
+	
+	# Neu thang = 1 || thang = 2 thi nam = nam - 1
+	addi $t7, $t8, -1
+	beq $t7, $zero, YearMinus1
+	addi $t7, $t8, -2
+	beq $t7, $zero, YearMinus1
+	j YearNormal
+YearMinus1:
+	addi $a0, $a0, -1
+YearNormal:	
+	jal getD
+	sw $v0, 16($sp)
+	jal getC
+	sw $v0, 20($sp)
+	
+	lw $t0, 8($sp)  # $t0 = k
+	lw $t1, 12($sp)  # $t1 = m
+	lw $t2, 16($sp)   # $t2 = D
+	lw $t3, 20($sp)   # $t3 = C
+	add $t4, $t0, $t2     # k + D
+	addi $t5, $zero, 4
+	div $t2, $t5           
+	mflo $t6             # [D/ 4]
+	add $t4, $t4, $t6     # k + D + [D/ 4]
+	div $t3, $t5           
+	mflo $t6             # [C/ 4]
+	add $t4, $t4, $t6     # k + D + [D/ 4] + [C/ 4]
+	addi $t5, $zero, -2
+	mult $t3, $t5         # -2*C
+	mflo $t6              # k + D + [D/ 4] + [C/ 4] - 2*C
+	add $t4, $t4, $t6
+	addi $t5, $zero, 13
+	mult $t1, $t5           # 13m
+	mflo $t6
+	addi $t6, $t6, -1      #13m - 1
+	addi $t5, $zero, 5
+	div $t6, $t5          #[(13m-1) / 5]
+	mflo $t6  
+	add $t4, $t4, $t6      # k + D + [D/ 4] + [C/ 4] - 2*C + [(13m-1) / 5]
+	addi $t5, $zero, 7
+	div $t4, $t5         # {k + D + [D/ 4] + [C/ 4] - 2*C + [(13m-1) / 5]} % 7
+	mfhi $a0
 	jal getWeekDayString
 	lw $a0, 0($sp)
 	lw $ra, 4($sp)
-	addi $sp, $sp,  8
+	addi $sp, $sp,  20
 	jr $ra
 
 #-------------------------------------------
@@ -1181,9 +1187,9 @@ DayToString:
 	sw $a0, 0($sp)
 	
 	la $t4, day
-	addi $s0, $a0, 0
+	addi $t5, $a0, 0
 	addi $t0, $zero, 10
-	div $s0, $t0
+	div $t5, $t0
 	mfhi $t1             # So Hang Don Vi
 	mflo $t2             # So Hang Chuc
 	# Chuyen tung ki tu sang char roi luu vao chuoi
@@ -1204,7 +1210,7 @@ MonthToString:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	
-	addi $s0, $a0, 0
+	#addi $t5, $a0, 0
 	addi $t0, $a1, -65
 	beq $t0, $zero, numConvert
 	addi $t0, $a1, -66
@@ -1213,9 +1219,9 @@ MonthToString:
 	beq $t0, $zero, nameConvert
 numConvert:
 	la $t4, month
-	addi $s0, $a0, 0
+	addi $t5, $a0, 0
 	addi $t0, $zero, 10
-	div $s0, $t0
+	div $t5, $t0
 	mfhi $t1             # So Hang Don Vi
 	mflo $t2             # So Hang Chuc
 	# Chuyen tung ki tu sang char roi luu vao chuoi
@@ -1334,15 +1340,15 @@ YearToString:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	
-	addi $s0, $a0, 0
+	addi $t6, $a0, 0
 	la $t4, year
 	addi $t2, $zero, 4
 Loop:
-	beq $s0, 0, exitYearToString
+	beq $t6, 0, exitYearToString    # while (year != 0)
 	addi $t0, $zero, 10
-	div $s0, $t0
+	div $t6, $t0                
 	mfhi $t3
-	mflo $s0
+	mflo $t6               # year = year / 10
 	addi $t3, $t3, 48
 	addi $t5, $t2, -4
 	beq $t5, $zero, add3
