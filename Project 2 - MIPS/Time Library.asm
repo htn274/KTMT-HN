@@ -1227,6 +1227,11 @@ YearToString:
 	syscall
 	lw $a0, 0($sp)
 	addi $t4,$v0, 0
+	slti $t0, $a0, 1000
+	bne $t0, $zero, addZeroToFirstLetter
+addZeroToFirstLetter:
+	addi $t3, $zero, '0'
+	sb $t3, 0($t4)
 	
 	addi $t2, $zero, 4
 Loop:
@@ -1391,6 +1396,11 @@ convertBType:
 	lw $a0, 0($sp)
 	jal Year
 	addi $t5, $v0, 0
+	slti $t0, $t5, 1000
+	bne $t0, $zero, addZeroToSeventhLetter
+addZeroToSeventhLetter:
+	addi $t3, $zero, '0'
+	sb $t3, 7($t8)
 	addi $t2, $zero, 10
 	addi $t3, $zero, 4
 setYear:
@@ -1474,6 +1484,9 @@ convertCType:
 	lw $a0, 0($sp)
 	jal Year
 	addi $t5, $v0, 0
+	addi $t5, $v0, 0
+	slti $t0, $t5, 1000
+	bne $t0, $zero, addZeroToSeventhLetter
 	addi $t2, $zero, 10
 	addi $t3, $zero, 4
 	j setYear  
