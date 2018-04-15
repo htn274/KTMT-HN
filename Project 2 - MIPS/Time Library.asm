@@ -13,11 +13,6 @@ main:
 	.align 2
 	year_str:	.space 5
 	.align 3
-	week_day:	.space 3
-	.align 2
-	#------------------------------
-	
-
 	#------------------------------
 	#------------------------------
 	demand: .asciiz "\n-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
@@ -788,7 +783,12 @@ getWeekDayString:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
-	la $t0, week_day    # week_day la chuoi tra ve
+	# Cap phat bo nho cho $t0
+	addi $v0, $zero, 9
+	addi $a0, $zero, 3
+	syscall
+	lw $a0, 0($sp)
+	addi $t0, $v0, 0
 	beq $a0, $zero, Sunday
 	addi $t2, $a0, -1
 	beq $t2, $zero, Monday
