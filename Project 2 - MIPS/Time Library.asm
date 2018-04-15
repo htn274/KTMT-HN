@@ -37,7 +37,7 @@ main:
 	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
 	
 	str_choice: .asciiz "Lua chon: "
-	str_result: .asciiz "\nKet qua: "
+	str_result: .asciiz "Ket qua: "
 	SPACE: .asciiz " "
 
 	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
@@ -118,6 +118,10 @@ LoopforChoice:
 		syscall 
 		addi $a1, $v0, 0
 				
+		la $a0, new_line 
+		addi $v0, $zero, 4
+		syscall 
+		
 		la $a0, str_result	#In cau thong bao ket qua
 		addi $v0, $zero, 4
 		syscall
@@ -160,7 +164,7 @@ LoopforChoice:
 		syscall
 	exit_Cau4:
 		j LoopforChoice	
-	Cau5:	#CHUA XONG
+	Cau5:	
 		#Nhap chuoi TIME_2
 		jal Input
 		addi $s1, $v0, 0
@@ -186,6 +190,10 @@ LoopforChoice:
 		j LoopforChoice
 		
 	Cau6:
+		la $a0, new_line 
+		addi $v0, $zero, 4
+		syscall 
+		
 		la $a0, str_result	#In thong bao "Ket qua: "
 		addi $v0, $zero, 4
 		syscall
