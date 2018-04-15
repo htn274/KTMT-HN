@@ -3,15 +3,10 @@
 main:	
 	.data 
 	day_promt:	.asciiz "\nNhap ngay DAY:"
-	.align 5
 	month_promt:	.asciiz "\nNhap thang MONTH:"
-	.align 5
 	year_promt:	.asciiz "\nNhap nam YEAR:"
-	.align 5
 	reinput_promt:	.asciiz "\nGia tri ngay thang nam khong phu hop. Nhap lai. \n"
-	.align 5
 	new_line:	.asciiz "\n"
-	.align 2
 	day_str:	.space 3
 	.align 2
 	month_str:	.space 3
@@ -33,36 +28,22 @@ main:
 	#------------------------------
 	#------------------------------
 	demand: .asciiz "\n-----Ban hay chon 1 trong cac yeu cau sau day: -----\n"
-	.align 2
 	demand0: .asciiz "0. Thoat\n"
-	.align 2
 	demand1: .asciiz "1. Xuat chuoi TIME theo dinh dang DD/MM/YYYY\n"
-	.align 2
 	demand2: .asciiz "2.Chuyen doi chuoi TIME thanh mot trong cac dinh dang sau:\n A.MM/DD/YYYY\n B.Month DD, YYYY\n C.DD Month, YYYY\n"
-	.align 2
 	demand3: .asciiz "3.Cho biet ngay vua nhap la thu may?\n"
-	.align 2
 	demand4: .asciiz "4.Kiem tra nam trong chuoi TIME co phai nam nhuan khong?\n"
-	.align 2
 	demand5: .asciiz "5.Cho biet khoang thoi gian giua 2 chuoi TIME_1, TIME_2\n"
-	.align 2
 	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
-	.align 2
 	
 	str_choice: .asciiz "Lua chon: "
-	.align 2
 	str_result: .asciiz "\nKet qua: "
-	.align 2
 	SPACE: .asciiz " "
-	.align 2
 
 	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
-	.align 2
 	
 	cau4_result1: .asciiz "Nam nhuan"
-	.align 2
 	cau4_result0: .asciiz "Khong phai nam nhuan"
-	.align 2
 	.text
 	
 	#Goi ham nhap 
@@ -324,6 +305,10 @@ end_while_input:
 #-----------------------------------------------------------------
 # ham lay ki tu thu $a1 cua string co dia chi $a0, tra gia tri ve $v0
 Getchar:	
+	add $t0,$a0,$a1
+	lb $v0,0($t0)
+	jr $ra
+Getchar_old:
 	# Vi lw chi lay gia tri trong cac dia chi la boi cua 4
 	# nen ta load word o dia chi $a0 + ($a1 - $a1 % 4), sau do lay byte thu $a1 %4 cua word do
 	
@@ -526,6 +511,10 @@ end_Check_date_value:
 #-------------------------------------------------------------
 # Ham gan ki tu $a2 vao vi tri $a1 cua string $a0
 Setchar:
+	add $t0,$a0,$a1
+	sb $a2,0($t0)
+	jr $ra
+Setchar_old:
 	# $t2 = $a1 % 4
 	# $t1 = $a1 - $t2
 	addi $t0,$zero,4	# $t0 = 4
@@ -555,9 +544,11 @@ end_while_setchar:
 	
 	jr $ra
 	
-#------------------------------------------------------------------
-# Truyen vao tham so day, month, year, dia chi cua chuoi time
-# Tra ve dia chi cua chuoi time sau khi ghi gia tri ngay theo dinh dang DD/MM/YYYY
+			
+#----------------------------------------------------------
+# Ham lay gia tri ngay trong chuoi TIME (DD/MM/YYYY) co dia chi $a0
+# Neu co the lay gia tri ngay, tra ve $v1 = 1, $v0 la gia tri ngay
+# Neu khong the lay gia tri ngay, tra ve $v1 = 0
 Date:
 	addi $sp,$sp,-28
 	sw $ra,24($sp)
@@ -699,47 +690,13 @@ Date:
 # Neu co the lay gia tri ngay, tra ve $v1 = 1, $v0 la gia tri ngay
 # Neu khong the lay gia tri ngay, tra ve $v1 = 0
 Day:
-	# Luu $ra va $a0 vao stack
-	add $sp,$sp,-12
-	sw $ra,8($sp)
-	sw $a0,4($sp)
-	
-	# Lay ky tu dau tien cua chuoi va chuyen sang so
+	addi $sp,$sp,-4
+	sw $ra,0($sp)
 	addi $a1,$zero,0
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	
-	# Neu ki tu dau tien khong phai la chu so -> incorrect
-	beq $v1,$zero,incorrect_day
-	
-	# $t0 = $v0*10 (chu so hang chuc)
-	addi $t1,$zero, 10
-	mult $v0,$t1
-	mflo $t0
-	
-	sw $t0,0($sp)	# Luu $t0 vao trong stack
-	
-	# Lay ky tu thu 2 cua chuoi va chuyen sang so
-	addi $a1,$zero,1
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	lw $t0,0($sp)
-	
-	# Neu ki tu thu 2 khong phai la chu so -> incorrect
-	beq $v1,$zero,incorrect_day
-	
-	# $t0 += $v0 (chu so hang don vi)
-	add $t0,$t0,$v0
-	
-	addi $v1,$zero,1
-	addi $v0,$t0,0
-	j end_day
-incorrect_day:
-	addi $v1,$zero,0
-end_day:
-	lw $ra,8($sp)
-	lw $a0,4($sp)
-	add $sp,$sp,12
+	addi $a2,$zero,1
+	jal String_to_number
+	lw $ra,0($sp)
+	addi $sp,$sp,4
 	jr $ra
 
 #----------------------------------------------------------	
@@ -747,122 +704,27 @@ end_day:
 # Neu co the lay gia tri thang, tra ve $v1 = 1, $v0 la gia tri thang
 # Neu khong the lay gia tri thang, tra ve $v1 = 0
 Month:
-	# Hoan toan tuong tu ham Day
-	add $sp,$sp,-12
-	sw $ra,8($sp)
-	sw $a0,4($sp)
-	
-	# Lay ki tu thu 3, chuyen sang so
+	addi $sp,$sp,-4
+	sw $ra,0($sp)
 	addi $a1,$zero,3
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	
-	beq $v1,$zero,incorrect_month
-	
-	# $t0 += $v0 *10 (chu so hang chuc)
-	addi $t1,$zero, 10
-	mult $v0,$t1
-	mflo $t0
-	
-	sw $t0,0($sp)	# Luu gia tri cua $t0 vao stack
-	
-	# Lay ki tu thu 6, chuyen sang so
-	addi $a1,$zero,4
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	lw $t0,0($sp)
-	
-	beq $v1,$zero,incorrect_month
-	
-	# $t0 += $v0 (chu so hang don vi)
-	add $t0,$t0,$v0
-	
-	addi $v1,$zero,1
-	addi $v0,$t0,0
-	j end_month
-incorrect_month:
-	addi $v1,$zero,0
-end_month:
-	
-	lw $ra,8($sp)
-	add $sp,$sp,12
+	addi $a2,$zero,4
+	jal String_to_number
+	lw $ra,0($sp)
+	addi $sp,$sp,4
 	jr $ra
-	
+
 #--------------------------------------------------------	
 # Ham lay gia tri ngay trong chuoi TIME (DD/MM/YYYY) co dia chi $a0
-# Neu co the lay gia tri ngay, tra ve $v1 = 1, $v0 la gia tri ngay
-# Neu khong the lay gia tri ngay, tra ve $v1 = 0
+# Neu co the lay gia tri nam, tra ve $v1 = 1, $v0 la gia tri nam
+# Neu khong the lay gia tri nam, tra ve $v1 = 0
 Year:
-	# Tuong tu ham Day
-	add $sp,$sp,-12
-	sw $ra,8($sp)
-	sw $a0,4($sp)
-	
-	# Lay ki tu thu 6, chuyen sang so
+	addi $sp,$sp,-4
+	sw $ra,0($sp)
 	addi $a1,$zero,6
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	
-	beq $v1,$zero,incorrect_year
-	
-	# $t0 = $v0 *1000 (chu so hang nghin)
-	addi $t1,$zero, 1000
-	mult $v0,$t1
-	mflo $t0
-	
-	sw $t0,0($sp)	# Luu gia tri cua $t0 vao stack
-	
-	# Lay ki tu thu 7, chuyen sang so
-	addi $a1,$zero,7
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	lw $t0,0($sp)
-	
-	beq $v1,$zero,incorrect_year
-	
-	# $t0 += $v0 *100 (chu so hang tram)
-	addi $t1,$zero, 100
-	mult $v0,$t1
-	mflo $t2
-	add $t0,$t0,$t2
-	
-	sw $t0,0($sp)	# Cap nhat gia tri cua $t0 vao stack
-	
-	# Lay ki tu thu 8, chuyen sang so
-	addi $a1,$zero,8
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	lw $t0,0($sp)
-	
-	beq $v1,$zero,incorrect_year
-	
-	# $t0 += $v0 *10 (chu so hang chuc)
-	addi $t1,$zero, 10
-	mult $v0,$t1
-	mflo $t2
-	add $t0,$t0,$t2
-	
-	sw $t0,0($sp)	# Cap nhat gia tri cua $t0 vao stack
-	
-	# Lay ki tu thu 9, chuyen sang so
-	addi $a1,$zero,9
-	jal Getchar_Char_to_number
-	lw $a0,4($sp)
-	lw $t0,0($sp)
-	
-	beq $v1,$zero,incorrect_year
-	
-	# $t0 += $v0 (chu so hang don vi)
-	add $t0,$t0,$v0
-	
-	addi $v1,$zero,1
-	addi $v0,$t0,0
-	j end_year
-incorrect_year:
-	addi $v1,$zero,0
-end_year:
-	lw $ra,8($sp)
-	add $sp,$sp,12
+	addi $a2,$zero,9
+	jal String_to_number
+	lw $ra,0($sp)
+	addi $sp,$sp,4
 	jr $ra
 
 #----------------------------------------------------
