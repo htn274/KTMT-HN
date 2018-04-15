@@ -7,12 +7,7 @@ main:
 	year_promt:	.asciiz "\nNhap nam YEAR:"
 	reinput_promt:	.asciiz "\nGia tri ngay thang nam khong phu hop. Nhap lai. \n"
 	new_line:	.asciiz "\n"
-	day_str:	.space 3
-	.align 2
-	month_str:	.space 3
-	.align 2
-	year_str:	.space 5
-	.align 3
+	
 	week_day:	.space 3
 	.align 2
 	#------------------------------
@@ -37,7 +32,7 @@ main:
 	demand6: .asciiz "6. Cho biet 2 nam nhuan gan nhat voi nam trong chuoi\n"
 	
 	str_choice: .asciiz "Lua chon: "
-	str_result: .asciiz "Ket qua: "
+	str_result: .asciiz "\nKet qua: "
 	SPACE: .asciiz " "
 
 	cau2_choice: .asciiz "Ban can chuyen doi qua dang nao? (nhap ki tu in hoa A/B/C)"
@@ -118,10 +113,6 @@ LoopforChoice:
 		syscall 
 		addi $a1, $v0, 0
 				
-		la $a0, new_line 
-		addi $v0, $zero, 4
-		syscall 
-		
 		la $a0, str_result	#In cau thong bao ket qua
 		addi $v0, $zero, 4
 		syscall
@@ -164,7 +155,7 @@ LoopforChoice:
 		syscall
 	exit_Cau4:
 		j LoopforChoice	
-	Cau5:	
+	Cau5:	#CHUA XONG
 		#Nhap chuoi TIME_2
 		jal Input
 		addi $s1, $v0, 0
@@ -190,10 +181,6 @@ LoopforChoice:
 		j LoopforChoice
 		
 	Cau6:
-		la $a0, new_line 
-		addi $v0, $zero, 4
-		syscall 
-		
 		la $a0, str_result	#In thong bao "Ket qua: "
 		addi $v0, $zero, 4
 		syscall
@@ -214,8 +201,14 @@ end_main:
 # Ham nhap ngay, thang, nam
 # Tra ve $v0 la dia chi cua chuoi time theo dinh danh DD/MM/YYYY
 Input:
-	addi $sp,$sp,-20
-	sw $ra,16($sp)
+	addi $sp,$sp,-24
+	sw $ra,20($sp)
+	
+	# Tao mot sub string de luu cac gia tri day, month, year duoc nhap vao
+	addi $a0,$zero,5
+	addi $v0,$zero,9
+	syscall
+	sw $v0,16($sp)
 	
 while_input:
 while_input_day:
@@ -224,15 +217,15 @@ while_input_day:
 	addi $v0, $zero, 4
 	syscall
 	
-	# Nhap ngay vao bien da
-	addi $a1,$zero,3
-	la $a0,day_str
-	addi $v0, $zero, 8
-	syscall
+	# Nhap ngay vao vung nho cua sub string da cap phat
+	addi $a1,$zero,2
+	lw $a0,16($sp)
 	
+	jal Scan_limited_string
+
 	# Kiem tra chuoi ngay co toan la chu so hay khong
 	addi $a1,$zero,0
-	addi $a2,$zero,1
+	addi $a2,$v0,-1
 	jal String_to_number
 	beq $v1,$zero, while_input_day
 	
@@ -244,15 +237,15 @@ while_input_month:
 	addi $v0, $zero, 4
 	syscall
 	
-	# Nhap thang vao bien month
-	addi $a1,$zero,3
-	la $a0,month_str
-	addi $v0, $zero, 8
-	syscall
+	# Nhap thang vao vung nho cua sub string da cap phat
+	addi $a1,$zero,2
+	lw $a0,16($sp)
 	
-	# Kiem tra chuoi ngay co toan la chu so hay khong
+	jal Scan_limited_string
+	
+	# Kiem tra chuoi thang co toan la chu so hay khong
 	addi $a1,$zero,0
-	addi $a2,$zero,1
+	addi $a2,$v0,-1
 	jal String_to_number
 	beq $v1,$zero, while_input_month
 
@@ -264,15 +257,15 @@ while_input_year:
 	addi $v0, $zero, 4
 	syscall
 	
-	# Nhap nam vao bien year
-	addi $a1,$zero,5
-	la $a0,year_str
-	addi $v0, $zero, 8
-	syscall
+	# Nhap nam vao vung nho cua sub string da cap phat
+	addi $a1,$zero,4
+	lw $a0,16($sp)
 	
-	# Kiem tra chuoi ngay co toan la chu so hay khong
+	jal Scan_limited_string
+	
+	# Kiem tra chuoi nam co toan la chu so hay khong
 	addi $a1,$zero,0
-	addi $a2,$zero,3
+	addi $a2,$v0,-1
 	jal String_to_number
 	beq $v1,$zero, while_input_year
 	
@@ -306,8 +299,48 @@ end_while_input:
 	addi $v0,$v0,0	# Tra ve gia tri tra ve cua ham Date
 	
 	# Thu hoi stack va return
-	lw $ra,16($sp)
-	addi $sp,$sp,20
+	lw $ra,20($sp)
+	addi $sp,$sp,24
+	jr $ra
+
+
+#----------------------------------------------------------------
+# Nhap string voi toi da $a1 ki tu, string da duoc cap phat kich thuoc on hon hoac bang $a1 o dia chi $a0
+# Ket thuc nhap khi nhan enter hoac nhap du $a1 ki tu
+# Tra ve chieu dai cua chuoi da nhap
+Scan_limited_string:
+	addi $sp,$sp,-16
+	sw $ra,12($sp)
+	sw $a0,8($sp)
+	sw $a1,4($sp)
+	
+	addi $t0,$zero,0
+while_scan_limited:
+	slt $t1,$t0,$a1
+	beq $t1,$zero,end_while_scan_limited
+	addi $v0,$zero,12
+	syscall
+	
+	beq $v0,'\n',end_while_scan_limited
+	
+	addi $a1,$t0,0
+	addi $a2,$v0,0
+	
+	sw $t0,0($sp)
+	jal Setchar
+	lw $t0,0($sp)
+	lw $a0,8($sp)
+	lw $a1,4($sp)
+	
+	addi $t0,$t0,1
+	j while_scan_limited
+end_while_scan_limited:
+	
+	addi $v0,$t0,0
+	
+	lw $ra,12($sp)
+	addi $sp,$sp,16
+	
 	jr $ra
 	
 #-----------------------------------------------------------------
@@ -315,34 +348,6 @@ end_while_input:
 Getchar:	
 	add $t0,$a0,$a1
 	lb $v0,0($t0)
-	jr $ra
-Getchar_old:
-	# Vi lw chi lay gia tri trong cac dia chi la boi cua 4
-	# nen ta load word o dia chi $a0 + ($a1 - $a1 % 4), sau do lay byte thu $a1 %4 cua word do
-	
-	# $t2 = $a1 % 4
-	# $t1 = $a1 - $t2
-	addi $t0,$zero,4	# $t0 = 4
-	div $a1,$t0		
-	mflo $t1		# $t1 = $a1 div 4
-	sll $t1,$t1,2		# $t1 = ($a1 div 4) * 4 = $a1 - a1 % 4
-	mfhi $t2		# $t1 = $a1 %4
-	
-	# Load word o dia chi $a0 + ($a1 - $a1 % 4)
-	add $t3,$a0,$t1		 
-	lw $v0,0($t3)		# $v0 = lw($a0 + $t1)
-	
-	# Lay byte o vi tri $a1 % 4 = $t2
-	# Dich phai word ($t2-1)*4 don vi, sau do and voi 0000 0000 0000 0000 0000 0000 1111 1111
-	addi $t4,$zero,0x00ff	# $t4 = 0000 0000 0000 0000 0000 0000 1111 1111
-while_getchar:
-	slt $t5,$zero,$t2	
-	beq $t5,$zero,end_while_getchar	# while (t2>0) {
-	srl $v0,$v0,8		#	$v0>>8;
-	addi $t2,$t2,-1		#	$t2--;
-	j while_getchar		# }
-end_while_getchar:
-	and $v0,$v0,$t4		# $v0 = $v0 & 0000 0000 0000 0000 0000 0000 1111 1111
 	jr $ra
 	
 #----------------------------------------------------------	
@@ -522,36 +527,6 @@ Setchar:
 	add $t0,$a0,$a1
 	sb $a2,0($t0)
 	jr $ra
-Setchar_old:
-	# $t2 = $a1 % 4
-	# $t1 = $a1 - $t2
-	addi $t0,$zero,4	# $t0 = 4
-	div $a1,$t0		
-	mflo $t1		# $t1 = $a1 div 4
-	sll $t1,$t1,2		# $t1 = ($a1 div 4) * 4 = $a1 - a1 % 4
-	mfhi $t2		# $t2 = $a1 % 4
-	
-	addi $t4,$zero,0x00ff
-	
-while_setchar:
-	slt $t5,$zero,$t2	
-	beq $t5,$zero,end_while_setchar	# while (t5>0) {
-	sll $a2,$a2,8		#	$v0<<8;
-	sll $t4,$t4,8
-	addi $t2,$t2,-1		#	$t5--;
-	j while_setchar		# }
-end_while_setchar:
-		
-	add $t3,$a0,$t1
-	lw $t5,0($t3)
-	
-	nor $t4,$t4,$zero	# AND string voi 111..1 0000 0000 111..1 de dua cac bit can gan ve 0
-	and $t5,$t5,$t4
-	or $t5,$t5,$a2		# OR ki tu $a2 voi chuoi $a0
-	sw $t5,0($t3)
-	
-	jr $ra
-	
 			
 #----------------------------------------------------------
 # Ham lay gia tri ngay trong chuoi TIME (DD/MM/YYYY) co dia chi $a0
