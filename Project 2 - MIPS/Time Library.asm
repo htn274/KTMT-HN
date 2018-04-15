@@ -7,18 +7,6 @@ main:
 	year_promt:	.asciiz "\nNhap nam YEAR:"
 	reinput_promt:	.asciiz "\nGia tri ngay thang nam khong phu hop. Nhap lai. \n"
 	new_line:	.asciiz "\n"
-	
-	week_day:	.space 3
-	.align 2
-	#------------------------------
-	month:             .space 4
-	.align 2
-	day:		   .space 2
-	.align 2
-	year:		   .space 4
-	.align 2
-	convertedDate:     .space 10
-	.align 2
 
 	#------------------------------
 	#------------------------------
@@ -112,7 +100,20 @@ LoopforChoice:
 		addi $v0, $zero, 12    #Input lua chon cua nguoi nhap	
 		syscall 
 		addi $a1, $v0, 0
-				
+    
+		addi $t0, $a1, -97
+		beq $t0, $zero, changeToABC
+		addi $t0, $a1, -98
+		beq $t0, $zero, changeToABC
+		addi $t0, $a1, -99
+		beq $t0, $zero, changeToABC
+	changeToABC:
+		addi $a1, $a1, -32
+	
+		la $a0, new_line 
+		addi $v0, $zero, 4
+		syscall 
+	
 		la $a0, str_result	#In cau thong bao ket qua
 		addi $v0, $zero, 4
 		syscall
@@ -762,7 +763,12 @@ getWeekDayString:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
-	la $t0, week_day    # week_day la chuoi tra ve
+	# Cap phat bo nho cho $t0
+	addi $v0, $zero, 9
+	addi $a0, $zero, 3
+	syscall
+	lw $a0, 0($sp)
+	addi $t0, $v0, 0
 	beq $a0, $zero, Sunday
 	addi $t2, $a0, -1
 	beq $t2, $zero, Monday
@@ -1031,7 +1037,13 @@ DayToString:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	
-	la $t4, day
+	
+	addi $v0, $zero, 9
+	addi $a0, $zero, 2
+	syscall
+	lw $a0, 0($sp)
+	addi $t4,$v0, 0
+	
 	addi $t5, $a0, 0
 	addi $t0, $zero, 10
 	div $t5, $t0
@@ -1055,7 +1067,6 @@ MonthToString:
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
 	
-	#addi $t5, $a0, 0
 	addi $t0, $a1, -65
 	beq $t0, $zero, numConvert
 	addi $t0, $a1, -66
@@ -1063,7 +1074,12 @@ MonthToString:
 	addi $t0, $a1, -67
 	beq $t0, $zero, nameConvert
 numConvert:
-	la $t4, month
+	addi $v0, $zero, 9
+	addi $a0, $zero, 3
+	syscall
+	lw $a0, 0($sp)
+	addi $t4,$v0, 0
+	
 	addi $t5, $a0, 0
 	addi $t0, $zero, 10
 	div $t5, $t0
@@ -1186,7 +1202,12 @@ YearToString:
 	sw $a0, 0($sp)
 	
 	addi $t6, $a0, 0
-	la $t4, year
+	addi $v0, $zero, 9
+	addi $a0, $zero, 4
+	syscall
+	lw $a0, 0($sp)
+	addi $t4,$v0, 0
+	
 	addi $t2, $zero, 4
 Loop:
 	beq $t6, 0, exitYearToString    # while (year != 0)
@@ -1234,7 +1255,12 @@ getNameOfMonth:
 	sw $a1, 8($sp)
 	sw $a2, 12($sp)
 	
-	la $t7, month
+	addi $v0, $zero, 9
+	addi $a0, $zero, 3
+	syscall
+
+	lw $a0, 0($sp)
+	addi $t7, $v0, 0
 	addi $t0, $a0, 0
 	sb $t0, 0($t7)
 	addi $t0, $a1, 0
@@ -1255,8 +1281,13 @@ convertAType:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
+	# Cap phat bo nho cho $t7
+	addi $v0, $zero, 9
+	addi $a0, $zero, 10
+	syscall
+	lw $a0, 0($sp)
+	addi $t7,$v0, 0
 	
-	la $t7, convertedDate
 	jal Month
 	addi $a0, $v0, 0
 	addi $a1, $zero, 65
@@ -1304,8 +1335,13 @@ convertBType:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
-	# Gan chuoi Month
-	la $t8, convertedDate
+	# Cap phat bo nho cho $t8
+	addi $v0, $zero, 9
+	addi $a0, $zero, 10
+	syscall
+	lw $a0, 0($sp)
+	addi $t8,$v0, 0
+	
 	jal Month
 	addi $a0, $v0, 0
 	addi $a1, $zero, 66
@@ -1382,8 +1418,13 @@ convertCType:
 	addi $sp, $sp, -8
 	sw $ra, 4($sp)
 	sw $a0, 0($sp)
-	# Gan chuoi Day
-	la $t8, convertedDate
+	# Cap phat bo nho cho $t8
+	addi $v0, $zero, 9
+	addi $a0, $zero, 10
+	syscall
+	lw $a0, 0($sp)
+	addi $t8,$v0, 0
+	
 	jal Day
 	addi $a0, $v0, 0
 	jal DayToString
